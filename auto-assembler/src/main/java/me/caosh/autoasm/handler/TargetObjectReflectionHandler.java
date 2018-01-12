@@ -7,7 +7,7 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 
 /**
- * 使用setter方法（如果存在）写入字段值
+ * 使用getter/setter方法（如果存在）读取、写入字段值
  *
  * @author caosh/shuhaoc@qq.com
  * @date 2018/1/10

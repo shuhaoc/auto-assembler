@@ -6,8 +6,8 @@ import java.beans.PropertyDescriptor;
 import java.util.List;
 
 /**
- * 写入handlers chain
- * 依次调用所有handlers直到任意一个handler返回true
+ * 目标对象handlers chain
+ * 依次调用所有handlers直到任意一个handler返回有效值
  *
  * @author caosh/shuhaoc@qq.com
  * @date 2018/1/10
