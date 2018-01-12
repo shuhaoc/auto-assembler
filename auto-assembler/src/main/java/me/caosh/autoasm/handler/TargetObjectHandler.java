@@ -8,7 +8,7 @@ import java.beans.PropertyDescriptor;
  * @author caosh/shuhaoc@qq.com
  * @date 2018/1/10
  */
-public interface TargetObjectWriteHandler {
+public interface TargetObjectHandler {
     /**
      * 写入目标对象字段值
      *

@@ -2,13 +2,13 @@ package me.caosh.autoasm;
 
 import me.caosh.autoasm.convert.StringToCommonTypeConverter;
 import me.caosh.autoasm.convert.ToStringConverter;
-import me.caosh.autoasm.handler.FieldMappingSupportReadHandler;
-import me.caosh.autoasm.handler.ReflectionReadHandler;
-import me.caosh.autoasm.handler.ReflectionWriteHandler;
-import me.caosh.autoasm.handler.SourceObjectReadHandler;
-import me.caosh.autoasm.handler.SourceObjectReadHandlerChain;
-import me.caosh.autoasm.handler.TargetObjectWriteHandler;
-import me.caosh.autoasm.handler.TargetObjectWriteHandlerChain;
+import me.caosh.autoasm.handler.FieldMappingSupportHandler;
+import me.caosh.autoasm.handler.SourceObjectHandler;
+import me.caosh.autoasm.handler.SourceObjectHandlerChain;
+import me.caosh.autoasm.handler.SourceObjectReflectionHandler;
+import me.caosh.autoasm.handler.TargetObjectHandler;
+import me.caosh.autoasm.handler.TargetObjectHandlerChain;
+import me.caosh.autoasm.handler.TargetObjectReflectionHandler;
 import org.springframework.beans.BeanUtils;
 
 import java.beans.PropertyDescriptor;
@@ -23,16 +23,16 @@ import java.lang.reflect.Method;
 public class AutoAssembler {
     private static final ToStringConverter TO_STRING_CONVERTER = new ToStringConverter();
     private static final StringToCommonTypeConverter STRING_TO_COMMON_TYPE_CONVERTER = new StringToCommonTypeConverter();
-    private SourceObjectReadHandler sourceObjectReadHandler;
-    private TargetObjectWriteHandler targetObjectWriteHandler;
+    private SourceObjectHandler sourceObjectHandler;
+    private TargetObjectHandler targetObjectHandler;
 
     public AutoAssembler() {
-        sourceObjectReadHandler = new SourceObjectReadHandlerChain(
-                new FieldMappingSupportReadHandler(),
-                new ReflectionReadHandler()
+        sourceObjectHandler = new SourceObjectHandlerChain(
+                new FieldMappingSupportHandler(),
+                new SourceObjectReflectionHandler()
         );
-        targetObjectWriteHandler = new TargetObjectWriteHandlerChain(
-                new ReflectionWriteHandler()
+        targetObjectHandler = new TargetObjectHandlerChain(
+                new TargetObjectReflectionHandler()
         );
     }
 
@@ -62,11 +62,11 @@ public class AutoAssembler {
             Method writeMethod = targetPropertyDescriptor.getWriteMethod();
             if (writeMethod != null) {
                 String propertyName = targetPropertyDescriptor.getName();
-                Object value = sourceObjectReadHandler.read(targetPropertyDescriptor, sourceObject, propertyName);
+                Object value = sourceObjectHandler.read(targetPropertyDescriptor, sourceObject, propertyName);
                 if (value != null) {
                     Class<?> propertyType = targetPropertyDescriptor.getPropertyType();
                     Object convertedValue = getConvertedValue(value, propertyType);
-                    targetObjectWriteHandler.write(targetPropertyDescriptor, targetObject, convertedValue);
+                    targetObjectHandler.write(targetPropertyDescriptor, targetObject, convertedValue);
                 }
             }
         }
@@ -88,11 +88,11 @@ public class AutoAssembler {
             Method readMethod = targetPropertyDescriptor.getReadMethod();
             if (readMethod != null) {
                 String propertyName = targetPropertyDescriptor.getName();
-                Object value = targetObjectWriteHandler.read(targetPropertyDescriptor, targetObject, propertyName);
+                Object value = targetObjectHandler.read(targetPropertyDescriptor, targetObject, propertyName);
                 if (value != null) {
                     Class<?> propertyType = targetPropertyDescriptor.getPropertyType();
                     Object convertedValue = getConvertedValue(value, propertyType);
-                    sourceObjectReadHandler.write(targetPropertyDescriptor, sourceObject, convertedValue);
+                    sourceObjectHandler.write(targetPropertyDescriptor, sourceObject, convertedValue);
                 }
             }
         }

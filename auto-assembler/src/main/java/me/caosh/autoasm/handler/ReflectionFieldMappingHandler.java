@@ -7,12 +7,12 @@ import java.beans.PropertyDescriptor;
 import java.util.Scanner;
 
 /**
- * 使用getter方法读取字段值的{@link FieldMappingReadHandler}
+ * 使用getter方法读取字段值的{@link FieldMappingHandler}
  *
  * @author caosh/shuhaoc@qq.com
  * @date 2018/1/10
  */
-public class ReflectionFieldMappingReadHandler implements FieldMappingReadHandler {
+public class ReflectionFieldMappingHandler implements FieldMappingHandler {
     @Override
     public Object read(PropertyDescriptor targetPropertyDescriptor, FieldMapping fieldMapping, Object sourceObject, String propertyPath) {
         Object nextProperty = null;

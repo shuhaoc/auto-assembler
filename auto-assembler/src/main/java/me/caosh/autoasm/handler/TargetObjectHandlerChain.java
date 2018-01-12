@@ -12,17 +12,17 @@ import java.util.List;
  * @author caosh/shuhaoc@qq.com
  * @date 2018/1/10
  */
-public class TargetObjectWriteHandlerChain implements TargetObjectWriteHandler {
-    private final List<TargetObjectWriteHandler> targetObjectWriteHandlerList;
+public class TargetObjectHandlerChain implements TargetObjectHandler {
+    private final List<TargetObjectHandler> targetObjectHandlerList;
 
-    public TargetObjectWriteHandlerChain(TargetObjectWriteHandler... handlers) {
-        this.targetObjectWriteHandlerList = ImmutableList.copyOf(handlers);
+    public TargetObjectHandlerChain(TargetObjectHandler... handlers) {
+        this.targetObjectHandlerList = ImmutableList.copyOf(handlers);
     }
 
     @Override
     public boolean write(PropertyDescriptor propertyDescriptor, Object targetObject, Object value) {
-        for (TargetObjectWriteHandler targetObjectWriteHandler : targetObjectWriteHandlerList) {
-            if (targetObjectWriteHandler.write(propertyDescriptor, targetObject, value)) {
+        for (TargetObjectHandler targetObjectHandler : targetObjectHandlerList) {
+            if (targetObjectHandler.write(propertyDescriptor, targetObject, value)) {
                 return true;
             }
         }
@@ -32,8 +32,8 @@ public class TargetObjectWriteHandlerChain implements TargetObjectWriteHandler {
 
     @Override
     public Object read(PropertyDescriptor propertyDescriptor, Object targetObject, String propertyName) {
-        for (TargetObjectWriteHandler targetObjectWriteHandler : targetObjectWriteHandlerList) {
-            Object value = targetObjectWriteHandler.read(propertyDescriptor, targetObject, propertyName);
+        for (TargetObjectHandler targetObjectHandler : targetObjectHandlerList) {
+            Object value = targetObjectHandler.read(propertyDescriptor, targetObject, propertyName);
             if (value != null) {
                 return value;
             }

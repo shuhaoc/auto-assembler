@@ -12,7 +12,7 @@ import java.lang.reflect.Method;
  * @author caosh/shuhaoc@qq.com
  * @date 2018/1/10
  */
-public class ReflectionReadHandler implements SourceObjectReadHandler {
+public class SourceObjectReflectionHandler implements SourceObjectHandler {
     @Override
     public Object read(PropertyDescriptor targetPropertyDescriptor, Object sourceObject, String propertyName) {
         return PropertyUtils.getPropertySoftly(sourceObject, propertyName);

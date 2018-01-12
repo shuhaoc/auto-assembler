@@ -8,7 +8,7 @@ import java.beans.PropertyDescriptor;
  * @author caosh/shuhaoc@qq.com
  * @date 2018/1/10
  */
-public interface SourceObjectReadHandler {
+public interface SourceObjectHandler {
     /**
      * 读取源对象字段值
      *

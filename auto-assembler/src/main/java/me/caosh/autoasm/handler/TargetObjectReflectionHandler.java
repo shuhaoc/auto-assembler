@@ -12,7 +12,7 @@ import java.lang.reflect.Method;
  * @author caosh/shuhaoc@qq.com
  * @date 2018/1/10
  */
-public class ReflectionWriteHandler implements TargetObjectWriteHandler {
+public class TargetObjectReflectionHandler implements TargetObjectHandler {
 
     @Override
     public boolean write(PropertyDescriptor propertyDescriptor, Object targetObject, Object value) {

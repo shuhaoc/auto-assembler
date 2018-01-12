@@ -12,17 +12,17 @@ import java.util.List;
  * @author caosh/shuhaoc@qq.com
  * @date 2018/1/10
  */
-public class SourceObjectReadHandlerChain implements SourceObjectReadHandler {
-    private final List<SourceObjectReadHandler> sourceObjectReadHandlerList;
+public class SourceObjectHandlerChain implements SourceObjectHandler {
+    private final List<SourceObjectHandler> sourceObjectHandlerList;
 
-    public SourceObjectReadHandlerChain(SourceObjectReadHandler... handlers) {
-        this.sourceObjectReadHandlerList = ImmutableList.copyOf(handlers);
+    public SourceObjectHandlerChain(SourceObjectHandler... handlers) {
+        this.sourceObjectHandlerList = ImmutableList.copyOf(handlers);
     }
 
     @Override
     public Object read(PropertyDescriptor targetPropertyDescriptor, Object sourceObject, String propertyName) {
-        for (SourceObjectReadHandler sourceObjectReadHandler : sourceObjectReadHandlerList) {
-            Object value = sourceObjectReadHandler.read(targetPropertyDescriptor, sourceObject, propertyName);
+        for (SourceObjectHandler sourceObjectHandler : sourceObjectHandlerList) {
+            Object value = sourceObjectHandler.read(targetPropertyDescriptor, sourceObject, propertyName);
             if (value != null) {
                 return value;
             }
@@ -32,8 +32,8 @@ public class SourceObjectReadHandlerChain implements SourceObjectReadHandler {
 
     @Override
     public boolean write(PropertyDescriptor targetPropertyDescriptor, Object sourceObject, Object value) {
-        for (SourceObjectReadHandler sourceObjectReadHandler : sourceObjectReadHandlerList) {
-            if (sourceObjectReadHandler.write(targetPropertyDescriptor, sourceObject, value)) {
+        for (SourceObjectHandler sourceObjectHandler : sourceObjectHandlerList) {
+            if (sourceObjectHandler.write(targetPropertyDescriptor, sourceObject, value)) {
                 return true;
             }
         }

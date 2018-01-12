@@ -13,13 +13,13 @@ import java.lang.reflect.Method;
  * @author caosh/shuhaoc@qq.com
  * @date 2018/1/10
  */
-public class FieldMappingSupportReadHandler implements SourceObjectReadHandler {
-    private final FieldMappingReadHandler fieldMappingReadHandler;
+public class FieldMappingSupportHandler implements SourceObjectHandler {
+    private final FieldMappingHandler fieldMappingHandler;
 
-    public FieldMappingSupportReadHandler() {
-        fieldMappingReadHandler = new FieldMappingReadHandlerChain(
-                new ConstantValueReadHandler(),
-                new ReflectionFieldMappingReadHandler()
+    public FieldMappingSupportHandler() {
+        fieldMappingHandler = new FieldMappingHandlerChain(
+                new ConstantValueHandler(),
+                new ReflectionFieldMappingHandler()
         );
     }
 
@@ -48,7 +48,7 @@ public class FieldMappingSupportReadHandler implements SourceObjectReadHandler {
         } else {
             propertyPath = propertyName;
         }
-        return fieldMappingReadHandler.read(targetPropertyDescriptor, fieldMapping, sourceObject, propertyPath);
+        return fieldMappingHandler.read(targetPropertyDescriptor, fieldMapping, sourceObject, propertyPath);
     }
 
     @Override

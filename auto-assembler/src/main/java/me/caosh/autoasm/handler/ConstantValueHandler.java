@@ -10,7 +10,7 @@ import java.beans.PropertyDescriptor;
  * @author caosh/shuhaoc@qq.com
  * @date 2018/1/10
  */
-public class ConstantValueReadHandler implements FieldMappingReadHandler {
+public class ConstantValueHandler implements FieldMappingHandler {
     @Override
     public Object read(PropertyDescriptor targetPropertyDescriptor, FieldMapping fieldMapping, Object sourceObject, String propertyPath) {
         if (!fieldMapping.value().isEmpty()) {
