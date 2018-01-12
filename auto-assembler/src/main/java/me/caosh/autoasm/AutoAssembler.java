@@ -90,9 +90,7 @@ public class AutoAssembler {
                 String propertyName = targetPropertyDescriptor.getName();
                 Object value = targetObjectHandler.read(targetPropertyDescriptor, targetObject, propertyName);
                 if (value != null) {
-                    Class<?> propertyType = targetPropertyDescriptor.getPropertyType();
-                    Object convertedValue = getConvertedValue(value, propertyType);
-                    sourceObjectHandler.write(targetPropertyDescriptor, sourceObject, convertedValue);
+                    sourceObjectHandler.write(targetPropertyDescriptor, sourceObject, value);
                 }
             }
         }
@@ -112,6 +110,10 @@ public class AutoAssembler {
             // 源类型为String的，尝试转换为通用类型
             return STRING_TO_COMMON_TYPE_CONVERTER.convert((String) value, (Class) propertyType);
         } else {
+            Convertible convertible = propertyType.getAnnotation(Convertible.class);
+            if (convertible != null) {
+                return assemble(value, propertyType);
+            }
             throw new IllegalArgumentException("Type mismatch and cannot convert: " + value.getClass().getSimpleName()
                     + " to " + propertyType.getSimpleName());
         }

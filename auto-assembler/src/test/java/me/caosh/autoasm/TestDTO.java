@@ -1,6 +1,7 @@
 package me.caosh.autoasm;
 
 import org.joda.time.MonthDay;
+import org.joda.time.YearMonth;
 
 import java.math.BigDecimal;
 
@@ -30,6 +31,7 @@ public class TestDTO extends BaseDTO {
     private String firstPrice;
     @FieldMapping(mappedProperty = "wrong.path")
     private String wrongPath;
+    private YearMonth yearMonth;
 
     public String getName() {
         return name;
@@ -157,5 +159,13 @@ public class TestDTO extends BaseDTO {
 
     public void setWrongPath(String wrongPath) {
         this.wrongPath = wrongPath;
+    }
+
+    public YearMonth getYearMonth() {
+        return yearMonth;
+    }
+
+    public void setYearMonth(YearMonth yearMonth) {
+        this.yearMonth = yearMonth;
     }
 }

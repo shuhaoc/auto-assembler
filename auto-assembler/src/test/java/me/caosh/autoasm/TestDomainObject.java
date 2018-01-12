@@ -22,6 +22,7 @@ public class TestDomainObject {
     private String str2BigDecimal;
     private String domainName;
     private YearMonth nullIgnored;
+    private YearMonth yearMonth;
 
     private Object properties;
 
@@ -143,6 +144,14 @@ public class TestDomainObject {
         this.properties = properties;
     }
 
+    public YearMonth getYearMonth() {
+        return yearMonth;
+    }
+
+    public void setYearMonth(YearMonth yearMonth) {
+        this.yearMonth = yearMonth;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -166,6 +175,7 @@ public class TestDomainObject {
             return false;
         if (domainName != null ? !domainName.equals(that.domainName) : that.domainName != null) return false;
         if (nullIgnored != null ? !nullIgnored.equals(that.nullIgnored) : that.nullIgnored != null) return false;
+        if (yearMonth != null ? !yearMonth.equals(that.yearMonth) : that.yearMonth != null) return false;
         return properties != null ? properties.equals(that.properties) : that.properties == null;
     }
 
@@ -185,6 +195,7 @@ public class TestDomainObject {
         result = 31 * result + (str2BigDecimal != null ? str2BigDecimal.hashCode() : 0);
         result = 31 * result + (domainName != null ? domainName.hashCode() : 0);
         result = 31 * result + (nullIgnored != null ? nullIgnored.hashCode() : 0);
+        result = 31 * result + (yearMonth != null ? yearMonth.hashCode() : 0);
         result = 31 * result + (properties != null ? properties.hashCode() : 0);
         return result;
     }
@@ -206,6 +217,7 @@ public class TestDomainObject {
                 .add("str2BigDecimal", str2BigDecimal)
                 .add("domainName", domainName)
                 .add("nullIgnored", nullIgnored)
+                .add("yearMonth", yearMonth)
                 .add("properties", properties)
                 .toString();
     }
