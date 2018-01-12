@@ -18,4 +18,6 @@ public interface TargetObjectWriteHandler {
      * @return 是否写入成功
      */
     boolean write(PropertyDescriptor propertyDescriptor, Object targetObject, Object value);
+
+    Object read(PropertyDescriptor propertyDescriptor, Object targetObject, String propertyName);
 }

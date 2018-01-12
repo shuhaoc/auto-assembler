@@ -73,6 +73,32 @@ public class AutoAssembler {
         return targetObject;
     }
 
+    public <S, T> S disassemble(T targetObject, Class<S> sourceClass) {
+        S sourceObject;
+        try {
+            sourceObject = sourceClass.newInstance();
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalArgumentException("Create source object <" + sourceClass.getSimpleName()
+                    + "> using non-argument-constructor failed", e);
+        }
+
+        Class<?> targetClass = targetObject.getClass();
+        PropertyDescriptor[] targetPropertyDescriptors = BeanUtils.getPropertyDescriptors(targetClass);
+        for (PropertyDescriptor targetPropertyDescriptor : targetPropertyDescriptors) {
+            Method readMethod = targetPropertyDescriptor.getReadMethod();
+            if (readMethod != null) {
+                String propertyName = targetPropertyDescriptor.getName();
+                Object value = targetObjectWriteHandler.read(targetPropertyDescriptor, targetObject, propertyName);
+                if (value != null) {
+                    Class<?> propertyType = targetPropertyDescriptor.getPropertyType();
+                    Object convertedValue = getConvertedValue(value, propertyType);
+                    sourceObjectReadHandler.write(targetPropertyDescriptor, sourceObject, convertedValue);
+                }
+            }
+        }
+        return sourceObject;
+    }
+
     private Object getConvertedValue(Object value, Class<?> propertyType) {
         if (propertyType.equals(value.getClass())) {
             return value;

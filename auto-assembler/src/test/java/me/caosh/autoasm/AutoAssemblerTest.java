@@ -34,6 +34,21 @@ public class AutoAssemblerTest {
         assertNull(testDTO.getNullIgnored());
     }
 
+    @Test
+    public void testBasicDisassemble() throws Exception {
+        TestDomainObject domainObject = new TestDomainObject(0, "");
+        domainObject.setGeneralField("abc333");
+        // for DTO const int config
+        domainObject.setConstInt(342);
+
+        TestDTO testDTO = autoAssembler.assemble(domainObject, TestDTO.class);
+
+        assertEquals(testDTO.getGeneralField(), domainObject.getGeneralField());
+
+        TestDomainObject disassembled = autoAssembler.disassemble(testDTO, TestDomainObject.class);
+        assertEquals(disassembled, domainObject);
+    }
+
     @Test(expectedExceptions = RuntimeException.class,
             expectedExceptionsMessageRegExp = "Invoke write method failed: <String> TestWriteFailedDTO#setName\\(abc23\\)")
     public void testWriteFailed() throws Exception {
@@ -120,6 +135,13 @@ public class AutoAssemblerTest {
             expectedExceptionsMessageRegExp = "Create target object <TestNewInstanceFailedDTO> using non-argument-constructor failed")
     public void testNewInstanceFailed() throws Exception {
         autoAssembler.assemble(new Object(), TestNewInstanceFailedDTO.class);
+    }
+
+
+    @Test(expectedExceptions = IllegalArgumentException.class,
+            expectedExceptionsMessageRegExp = "Create source object <TestNewInstanceFailedDomainObject> using non-argument-constructor failed")
+    public void testNewInstanceDomainFailed() throws Exception {
+        autoAssembler.disassemble(new Object(), TestNewInstanceFailedDomainObject.class);
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class,

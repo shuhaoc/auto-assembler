@@ -29,4 +29,14 @@ public class SourceObjectReadHandlerChain implements SourceObjectReadHandler {
         }
         return null;
     }
+
+    @Override
+    public boolean write(PropertyDescriptor targetPropertyDescriptor, Object sourceObject, Object value) {
+        for (SourceObjectReadHandler sourceObjectReadHandler : sourceObjectReadHandlerList) {
+            if (sourceObjectReadHandler.write(targetPropertyDescriptor, sourceObject, value)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

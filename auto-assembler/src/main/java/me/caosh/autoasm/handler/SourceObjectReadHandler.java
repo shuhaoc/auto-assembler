@@ -17,4 +17,6 @@ public interface SourceObjectReadHandler {
      * @param propertyName             @return 返回字段值，可为空
      */
     Object read(PropertyDescriptor targetPropertyDescriptor, Object sourceObject, String propertyName);
+
+    boolean write(PropertyDescriptor targetPropertyDescriptor, Object sourceObject, Object value);
 }

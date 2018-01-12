@@ -29,4 +29,15 @@ public class TargetObjectWriteHandlerChain implements TargetObjectWriteHandler {
         // should not run to here
         return false;
     }
+
+    @Override
+    public Object read(PropertyDescriptor propertyDescriptor, Object targetObject, String propertyName) {
+        for (TargetObjectWriteHandler targetObjectWriteHandler : targetObjectWriteHandlerList) {
+            Object value = targetObjectWriteHandler.read(propertyDescriptor, targetObject, propertyName);
+            if (value != null) {
+                return value;
+            }
+        }
+        return null;
+    }
 }

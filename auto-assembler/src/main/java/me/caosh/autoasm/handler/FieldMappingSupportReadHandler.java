@@ -51,4 +51,8 @@ public class FieldMappingSupportReadHandler implements SourceObjectReadHandler {
         return fieldMappingReadHandler.read(targetPropertyDescriptor, fieldMapping, sourceObject, propertyPath);
     }
 
+    @Override
+    public boolean write(PropertyDescriptor targetPropertyDescriptor, Object sourceObject, Object value) {
+        return false;
+    }
 }

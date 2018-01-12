@@ -10,6 +10,7 @@ import java.math.BigDecimal;
  */
 public class TestDTO extends BaseDTO {
     private String name;
+    private String generalField;
     private String setterOnly;
     private String setGetDiff;
     @FieldMapping("abc")
@@ -36,6 +37,14 @@ public class TestDTO extends BaseDTO {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getGeneralField() {
+        return generalField;
+    }
+
+    public void setGeneralField(String generalField) {
+        this.generalField = generalField;
     }
 
     public String getSetGetDiff() {

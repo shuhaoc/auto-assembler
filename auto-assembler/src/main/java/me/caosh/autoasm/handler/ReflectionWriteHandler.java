@@ -1,6 +1,7 @@
 package me.caosh.autoasm.handler;
 
 import com.google.common.base.Preconditions;
+import me.caosh.autoasm.util.PropertyUtils;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
@@ -28,4 +29,8 @@ public class ReflectionWriteHandler implements TargetObjectWriteHandler {
         }
     }
 
+    @Override
+    public Object read(PropertyDescriptor propertyDescriptor, Object targetObject, String propertyName) {
+        return PropertyUtils.getPropertySoftly(targetObject, propertyName);
+    }
 }
