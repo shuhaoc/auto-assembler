@@ -14,10 +14,6 @@ public class TestDTO extends BaseDTO {
     private String generalField;
     private String setterOnly;
     private String setGetDiff;
-    @FieldMapping("abc")
-    private String constString;
-    @FieldMapping("342")
-    private Integer constInt;
     private String int2String;
     private Integer str2Int;
     private Long str2Long;
@@ -63,22 +59,6 @@ public class TestDTO extends BaseDTO {
 
     public void setSetGetDiff(Integer setGetDiff) {
         this.setGetDiff = String.valueOf(setGetDiff);
-    }
-
-    public String getConstString() {
-        return constString;
-    }
-
-    public void setConstString(String constString) {
-        this.constString = constString;
-    }
-
-    public Integer getConstInt() {
-        return constInt;
-    }
-
-    public void setConstInt(Integer constInt) {
-        this.constInt = constInt;
     }
 
     public String getInt2String() {
