@@ -16,7 +16,7 @@ public class ExceptionTest {
     @Test(expectedExceptions = RuntimeException.class,
             expectedExceptionsMessageRegExp = "Invoke write method failed: <String> TestWriteFailedDTO#setName\\(abc23\\)")
     public void testWriteFailed() throws Exception {
-        TestDomainObject domainObject = new TestDomainObject(12, "abc23");
+        TestWriteFailedObject domainObject = new TestWriteFailedObject(12, "abc23");
         autoAssembler.assemble(domainObject, TestWriteFailedDTO.class);
     }
 
