@@ -21,7 +21,7 @@ public class ExceptionTest {
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class,
-            expectedExceptionsMessageRegExp = "Non supported target type: org.joda.time.YearMonth")
+            expectedExceptionsMessageRegExp = "Type mismatch and cannot convert: String to YearMonth")
     public void testUnsupportedFiledConvert() throws Exception {
         autoAssembler.assemble(new Object(), TestUnsupportedFieldDTO.class);
     }

@@ -1,9 +1,10 @@
 package me.caosh.autoasm.handler;
 
+import com.google.common.base.Converter;
 import me.caosh.autoasm.AutoAssembler;
 import me.caosh.autoasm.Convertible;
-import me.caosh.autoasm.convert.StringToCommonTypeConverter;
-import me.caosh.autoasm.convert.ToStringConverter;
+import me.caosh.autoasm.converter.ConverterMapping;
+import me.caosh.autoasm.converter.DefaultConverterMapping;
 import me.caosh.autoasm.util.PropertyUtils;
 import org.springframework.beans.BeanUtils;
 
@@ -17,8 +18,7 @@ import java.lang.reflect.Method;
  * @date 2018/1/10
  */
 public class SourceObjectReflectionHandler implements SourceObjectHandler {
-    private static final ToStringConverter TO_STRING_CONVERTER = new ToStringConverter();
-    private static final StringToCommonTypeConverter STRING_TO_COMMON_TYPE_CONVERTER = new StringToCommonTypeConverter();
+    private ConverterMapping converterMapping = new DefaultConverterMapping();
 
     @Override
     public Object read(PropertyDescriptor targetPropertyDescriptor, Object sourceObject, String propertyName) {
@@ -57,20 +57,17 @@ public class SourceObjectReflectionHandler implements SourceObjectHandler {
             return value;
         }
 
-        // 类型不兼容，尝试进行转换
-        if (String.class.equals(propertyType)) {
-            // 目标类型为String的，直接String.valueOf
-            return TO_STRING_CONVERTER.convert(value, String.class);
-        } else if (String.class.equals(value.getClass())) {
-            // 源类型为String的，尝试转换为通用类型
-            return STRING_TO_COMMON_TYPE_CONVERTER.convert((String) value, (Class) propertyType);
-        } else {
-            Convertible convertible = targetPropertyType.getAnnotation(Convertible.class);
-            if (convertible != null) {
-                return new AutoAssembler().disassemble(value, propertyType);
-            }
-            throw new IllegalArgumentException("Type mismatch and cannot convert: " + value.getClass().getSimpleName()
-                    + " to " + propertyType.getSimpleName());
+        Converter converter = converterMapping.find(value.getClass(), propertyType);
+        if (converter != null) {
+            return converter.convert(value);
         }
+
+        Convertible convertible = targetPropertyType.getAnnotation(Convertible.class);
+        if (convertible != null) {
+            return new AutoAssembler().disassemble(value, propertyType);
+        }
+        throw new IllegalArgumentException("Type mismatch and cannot convert: " + value.getClass().getSimpleName()
+                + " to " + propertyType.getSimpleName());
+
     }
 }
