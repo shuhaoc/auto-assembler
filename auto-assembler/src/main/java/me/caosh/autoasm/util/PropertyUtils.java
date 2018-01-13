@@ -4,6 +4,7 @@ import org.springframework.beans.BeanUtils;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
+import java.util.Scanner;
 
 /**
  * @author caosh/shuhaoc@qq.com
@@ -11,13 +12,13 @@ import java.lang.reflect.Method;
  */
 public class PropertyUtils {
     public static Object getPropertySoftly(Object object, String propertyName) {
-        Class<?> srcClass = object.getClass();
-        PropertyDescriptor srcPropertyDescriptor = BeanUtils.getPropertyDescriptor(srcClass, propertyName);
-        if (srcPropertyDescriptor == null) {
+        Class<?> objectClass = object.getClass();
+        PropertyDescriptor propertyDescriptor = BeanUtils.getPropertyDescriptor(objectClass, propertyName);
+        if (propertyDescriptor == null) {
             return null;
         }
 
-        Method readMethod = srcPropertyDescriptor.getReadMethod();
+        Method readMethod = propertyDescriptor.getReadMethod();
         if (readMethod == null) {
             return null;
         }
@@ -26,6 +27,47 @@ public class PropertyUtils {
             return readMethod.invoke(object);
         } catch (ReflectiveOperationException e) {
             return null;
+        }
+    }
+
+    public static Object getPathPropertySoftly(Object sourceObject, String propertyPath) {
+        Object nextProperty = null;
+        Scanner scanner = new Scanner(propertyPath);
+        scanner.useDelimiter("\\.");
+        while (scanner.hasNext()) {
+            String partialPropertyName = scanner.next();
+            Object currentProperty = nextProperty == null ? sourceObject : nextProperty;
+            nextProperty = getPropertySoftly(currentProperty, partialPropertyName);
+            if (nextProperty == null) {
+                return null;
+            }
+        }
+        return nextProperty;
+    }
+
+    public static boolean setPropertySoftly(Object object, String propertyName, Object value) {
+        Class<?> objectClass = object.getClass();
+        PropertyDescriptor propertyDescriptor = BeanUtils.getPropertyDescriptor(objectClass, propertyName);
+        if (propertyDescriptor == null) {
+            return false;
+        }
+
+        return setProperty(propertyDescriptor, object, value);
+    }
+
+    public static boolean setProperty(PropertyDescriptor propertyDescriptor, Object object, Object value) {
+        Method writeMethod = propertyDescriptor.getWriteMethod();
+        if (writeMethod == null) {
+            return false;
+        }
+
+        try {
+            writeMethod.invoke(object, value);
+            return true;
+        } catch (Exception e) {
+            throw new RuntimeException("Invoke write method failed: <" + value.getClass().getSimpleName() + "> "
+                    + object.getClass().getSimpleName() + "#"
+                    + writeMethod.getName() + "(" + value + ")", e);
         }
     }
 

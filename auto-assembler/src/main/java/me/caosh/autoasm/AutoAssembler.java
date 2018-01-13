@@ -3,16 +3,16 @@ package me.caosh.autoasm;
 import com.google.common.base.Converter;
 import me.caosh.autoasm.converter.ConverterMapping;
 import me.caosh.autoasm.converter.DefaultConverterMapping;
-import me.caosh.autoasm.handler.FieldMappingSupportHandler;
-import me.caosh.autoasm.handler.SourceObjectHandler;
-import me.caosh.autoasm.handler.SourceObjectHandlerChain;
-import me.caosh.autoasm.handler.SourceObjectReflectionHandler;
-import me.caosh.autoasm.handler.TargetObjectHandler;
-import me.caosh.autoasm.handler.TargetObjectHandlerChain;
-import me.caosh.autoasm.handler.TargetObjectReflectionHandler;
+import me.caosh.autoasm.handler.FieldMappingAssembleReadHandler;
+import me.caosh.autoasm.handler.ReadHandler;
+import me.caosh.autoasm.handler.ReadHandlerChain;
+import me.caosh.autoasm.handler.ReflectionReadHandler;
+import me.caosh.autoasm.util.PropertyUtils;
+import me.caosh.autoasm.util.ReflectionUtils;
 import org.springframework.beans.BeanUtils;
 
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 /**
@@ -22,17 +22,17 @@ import java.lang.reflect.Method;
  * @date 2018/1/10
  */
 public class AutoAssembler {
-    private SourceObjectHandler sourceObjectHandler;
-    private TargetObjectHandler targetObjectHandler;
+    private ReadHandler assembleReadHandler;
+    private ReadHandler disassembleReadHandler;
     private ConverterMapping converterMapping = new DefaultConverterMapping();
 
     public AutoAssembler() {
-        sourceObjectHandler = new SourceObjectHandlerChain(
-                new FieldMappingSupportHandler(),
-                new SourceObjectReflectionHandler()
+        assembleReadHandler = new ReadHandlerChain(
+                new FieldMappingAssembleReadHandler(),
+                new ReflectionReadHandler()
         );
-        targetObjectHandler = new TargetObjectHandlerChain(
-                new TargetObjectReflectionHandler()
+        disassembleReadHandler = new ReadHandlerChain(
+                new ReflectionReadHandler()
         );
     }
 
@@ -49,24 +49,19 @@ public class AutoAssembler {
      * @return 目标对象，不可能为空
      */
     public <S, T> T assemble(S sourceObject, Class<T> targetClass) {
-        T targetObject;
-        try {
-            targetObject = targetClass.newInstance();
-        } catch (ReflectiveOperationException e) {
-            throw new IllegalArgumentException("Create target object <" + targetClass.getSimpleName()
-                    + "> using non-argument-constructor failed", e);
-        }
+        T targetObject = ReflectionUtils.newInstance(targetClass);
 
         PropertyDescriptor[] targetPropertyDescriptors = BeanUtils.getPropertyDescriptors(targetClass);
         for (PropertyDescriptor targetPropertyDescriptor : targetPropertyDescriptors) {
             Method writeMethod = targetPropertyDescriptor.getWriteMethod();
             if (writeMethod != null) {
                 String propertyName = targetPropertyDescriptor.getName();
-                Object value = sourceObjectHandler.read(targetPropertyDescriptor, sourceObject, propertyName);
+                FieldMapping fieldMapping = getFieldMapping(propertyName, writeMethod);
+                Object value = assembleReadHandler.read(fieldMapping, sourceObject, propertyName);
                 if (value != null) {
                     Class<?> propertyType = targetPropertyDescriptor.getPropertyType();
-                    Object convertedValue = getConvertedValue(value, propertyType);
-                    targetObjectHandler.write(targetPropertyDescriptor, targetObject, convertedValue);
+                    Object convertedValue = getConvertedValue(value, propertyType, propertyType);
+                    PropertyUtils.setProperty(targetPropertyDescriptor, targetObject, convertedValue);
                 }
             }
         }
@@ -74,13 +69,7 @@ public class AutoAssembler {
     }
 
     public <S, T> S disassemble(T targetObject, Class<S> sourceClass) {
-        S sourceObject;
-        try {
-            sourceObject = sourceClass.newInstance();
-        } catch (ReflectiveOperationException e) {
-            throw new IllegalArgumentException("Create source object <" + sourceClass.getSimpleName()
-                    + "> using non-argument-constructor failed", e);
-        }
+        S sourceObject = ReflectionUtils.newInstance(sourceClass);
 
         Class<?> targetClass = targetObject.getClass();
         PropertyDescriptor[] targetPropertyDescriptors = BeanUtils.getPropertyDescriptors(targetClass);
@@ -88,30 +77,62 @@ public class AutoAssembler {
             Method readMethod = targetPropertyDescriptor.getReadMethod();
             if (readMethod != null) {
                 String propertyName = targetPropertyDescriptor.getName();
-                Object value = targetObjectHandler.read(targetPropertyDescriptor, targetObject, propertyName);
+                FieldMapping fieldMapping = getFieldMapping(propertyName, readMethod);
+                Object value = disassembleReadHandler.read(fieldMapping, targetObject, propertyName);
                 if (value != null) {
-                    sourceObjectHandler.write(targetPropertyDescriptor, sourceObject, value);
+                    PropertyDescriptor propertyDescriptor = BeanUtils.getPropertyDescriptor(sourceClass, propertyName);
+                    if (propertyDescriptor != null) {
+                        Class<?> propertyType = propertyDescriptor.getPropertyType();
+                        Class<?> targetPropertyType = targetPropertyDescriptor.getPropertyType();
+                        Object convertedValue = getConvertedValue(value, targetPropertyType, propertyType);
+                        PropertyUtils.setProperty(propertyDescriptor, sourceObject, convertedValue);
+                    }
                 }
             }
         }
         return sourceObject;
     }
 
-    private Object getConvertedValue(Object value, Class<?> propertyType) {
-        if (propertyType.equals(value.getClass())) {
+    private FieldMapping getFieldMapping(String propertyName, Method accessorMethod) {
+        if ("class".equals(propertyName)) {
+            // 每个对象都有一个class属性，不处理
+            return null;
+        }
+
+        Field declaredField;
+        try {
+            declaredField = accessorMethod.getDeclaringClass().getDeclaredField(propertyName);
+        } catch (NoSuchFieldException e) {
+            throw new IllegalArgumentException("Get declared field (" + propertyName + ") from property declaring class <"
+                    + accessorMethod.getDeclaringClass().getSimpleName() + "> failed", e);
+        }
+
+        return declaredField.getAnnotation(FieldMapping.class);
+    }
+
+    /**
+     * 进行字段转换
+     *
+     * @param value                转换前字段值
+     * @param targetPropertyType   目标类型，assemble时为返回值类型，disassemble时为入参类型
+     * @param expectedPropertyType 返回值类型
+     * @return 转换后字段值
+     */
+    private Object getConvertedValue(Object value, Class<?> targetPropertyType, Class<?> expectedPropertyType) {
+        if (expectedPropertyType.equals(value.getClass())) {
             return value;
         }
 
-        Converter converter = converterMapping.find(value.getClass(), propertyType);
+        Converter converter = converterMapping.find(value.getClass(), expectedPropertyType);
         if (converter != null) {
             return converter.convert(value);
         }
 
-        Convertible convertible = propertyType.getAnnotation(Convertible.class);
+        Convertible convertible = targetPropertyType.getAnnotation(Convertible.class);
         if (convertible != null) {
-            return assemble(value, propertyType);
+            return new AutoAssembler().disassemble(value, expectedPropertyType);
         }
         throw new IllegalArgumentException("Type mismatch and cannot convert: " + value.getClass().getSimpleName()
-                + " to " + propertyType.getSimpleName());
+                + " to " + expectedPropertyType.getSimpleName());
     }
 }

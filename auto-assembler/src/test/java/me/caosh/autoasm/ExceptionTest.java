@@ -39,13 +39,13 @@ public class ExceptionTest {
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class,
-            expectedExceptionsMessageRegExp = "Create target object <TestNewInstanceFailedDTO> using non-argument-constructor failed")
+            expectedExceptionsMessageRegExp = "Create object <TestNewInstanceFailedDTO> using non-argument-constructor failed")
     public void testNewInstanceFailed() throws Exception {
         autoAssembler.assemble(new Object(), TestNewInstanceFailedDTO.class);
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class,
-            expectedExceptionsMessageRegExp = "Create source object <TestNewInstanceFailedDomainObject> using non-argument-constructor failed")
+            expectedExceptionsMessageRegExp = "Create object <TestNewInstanceFailedDomainObject> using non-argument-constructor failed")
     public void testNewInstanceDomainFailed() throws Exception {
         autoAssembler.disassemble(new Object(), TestNewInstanceFailedDomainObject.class);
     }
