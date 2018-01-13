@@ -26,7 +26,8 @@ public class PropertyUtils {
         try {
             return readMethod.invoke(object);
         } catch (ReflectiveOperationException e) {
-            return null;
+            throw new RuntimeException("Invoke read method failed: "
+                    + object.getClass().getSimpleName() + "#" + readMethod.getName(), e);
         }
     }
 

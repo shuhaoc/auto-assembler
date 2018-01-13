@@ -32,7 +32,8 @@ public class ExceptionTest {
         autoAssembler.assemble(new TestUnsupportedTypeDomainObject(YearMonth.now()), TestUnsupportedTypeDTO.class);
     }
 
-    @Test
+    @Test(expectedExceptions = RuntimeException.class,
+            expectedExceptionsMessageRegExp = "Invoke read method failed: TestReadFailedDomainObject#getCorruptedField")
     public void testReadFailed() {
         TestReadFailedDTO dto = autoAssembler.assemble(new TestReadFailedDomainObject(), TestReadFailedDTO.class);
         assertNull(dto.getCorruptedField());
