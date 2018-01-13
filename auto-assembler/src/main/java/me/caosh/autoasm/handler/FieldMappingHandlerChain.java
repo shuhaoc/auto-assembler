@@ -3,7 +3,6 @@ package me.caosh.autoasm.handler;
 import com.google.common.collect.ImmutableList;
 import me.caosh.autoasm.FieldMapping;
 
-import java.beans.PropertyDescriptor;
 import java.util.List;
 
 /**
@@ -20,9 +19,9 @@ public class FieldMappingHandlerChain implements FieldMappingHandler {
     }
 
     @Override
-    public Object read(PropertyDescriptor targetPropertyDescriptor, FieldMapping fieldMapping, Object sourceObject, String propertyPath) {
+    public Object read(FieldMapping fieldMapping, Object sourceObject, String propertyPath) {
         for (FieldMappingHandler fieldMappingHandler : fieldMappingHandlerList) {
-            Object value = fieldMappingHandler.read(targetPropertyDescriptor, fieldMapping, sourceObject, propertyPath);
+            Object value = fieldMappingHandler.read(fieldMapping, sourceObject, propertyPath);
             if (value != null) {
                 return value;
             }

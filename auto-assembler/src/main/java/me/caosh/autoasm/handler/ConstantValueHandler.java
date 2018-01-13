@@ -2,8 +2,6 @@ package me.caosh.autoasm.handler;
 
 import me.caosh.autoasm.FieldMapping;
 
-import java.beans.PropertyDescriptor;
-
 /**
  * 读取{@link FieldMapping#value()}配置的值
  *
@@ -12,7 +10,7 @@ import java.beans.PropertyDescriptor;
  */
 public class ConstantValueHandler implements FieldMappingHandler {
     @Override
-    public Object read(PropertyDescriptor targetPropertyDescriptor, FieldMapping fieldMapping, Object sourceObject, String propertyPath) {
+    public Object read(FieldMapping fieldMapping, Object sourceObject, String propertyPath) {
         if (!fieldMapping.value().isEmpty()) {
             return fieldMapping.value();
         }

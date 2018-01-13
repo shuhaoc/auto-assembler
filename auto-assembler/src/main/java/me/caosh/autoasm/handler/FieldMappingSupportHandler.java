@@ -48,7 +48,7 @@ public class FieldMappingSupportHandler implements SourceObjectHandler {
         } else {
             propertyPath = propertyName;
         }
-        return fieldMappingHandler.read(targetPropertyDescriptor, fieldMapping, sourceObject, propertyPath);
+        return fieldMappingHandler.read(fieldMapping, sourceObject, propertyPath);
     }
 
     @Override

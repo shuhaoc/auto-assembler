@@ -3,7 +3,6 @@ package me.caosh.autoasm.handler;
 import me.caosh.autoasm.FieldMapping;
 import me.caosh.autoasm.util.PropertyUtils;
 
-import java.beans.PropertyDescriptor;
 import java.util.Scanner;
 
 /**
@@ -14,7 +13,7 @@ import java.util.Scanner;
  */
 public class ReflectionFieldMappingHandler implements FieldMappingHandler {
     @Override
-    public Object read(PropertyDescriptor targetPropertyDescriptor, FieldMapping fieldMapping, Object sourceObject, String propertyPath) {
+    public Object read(FieldMapping fieldMapping, Object sourceObject, String propertyPath) {
         Object nextProperty = null;
         Scanner scanner = new Scanner(propertyPath);
         scanner.useDelimiter("\\.");
