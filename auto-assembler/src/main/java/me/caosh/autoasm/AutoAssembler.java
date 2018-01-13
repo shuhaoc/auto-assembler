@@ -3,10 +3,8 @@ package me.caosh.autoasm;
 import com.google.common.base.Converter;
 import me.caosh.autoasm.converter.ConverterMapping;
 import me.caosh.autoasm.converter.DefaultConverterMapping;
-import me.caosh.autoasm.handler.FieldMappingAssembleReadHandler;
-import me.caosh.autoasm.handler.ReadHandler;
-import me.caosh.autoasm.handler.ReadHandlerChain;
-import me.caosh.autoasm.handler.ReflectionReadHandler;
+import me.caosh.autoasm.handler.*;
+import me.caosh.autoasm.util.PropertyFindResult;
 import me.caosh.autoasm.util.PropertyUtils;
 import me.caosh.autoasm.util.ReflectionUtils;
 import org.springframework.beans.BeanUtils;
@@ -24,6 +22,7 @@ import java.lang.reflect.Method;
 public class AutoAssembler {
     private ReadHandler assembleReadHandler;
     private ReadHandler disassembleReadHandler;
+    private PropertyFinder disassemblePropertyFinder;
     private ConverterMapping converterMapping = new DefaultConverterMapping();
 
     public AutoAssembler() {
@@ -34,6 +33,7 @@ public class AutoAssembler {
         disassembleReadHandler = new ReadHandlerChain(
                 new ReflectionReadHandler()
         );
+        disassemblePropertyFinder = new FieldMappingDisassemblePropertyFinder();
     }
 
     /**
@@ -80,12 +80,14 @@ public class AutoAssembler {
                 FieldMapping fieldMapping = getFieldMapping(propertyName, readMethod);
                 Object value = disassembleReadHandler.read(fieldMapping, targetObject, propertyName);
                 if (value != null) {
-                    PropertyDescriptor propertyDescriptor = BeanUtils.getPropertyDescriptor(sourceClass, propertyName);
-                    if (propertyDescriptor != null) {
+                    PropertyFindResult propertyFindResult = disassemblePropertyFinder.findPropertyDescriptor(
+                            sourceObject, propertyName, fieldMapping);
+                    if (propertyFindResult != null) {
+                        PropertyDescriptor propertyDescriptor = propertyFindResult.getPropertyDescriptor();
                         Class<?> propertyType = propertyDescriptor.getPropertyType();
                         Class<?> targetPropertyType = targetPropertyDescriptor.getPropertyType();
                         Object convertedValue = getConvertedValue(value, targetPropertyType, propertyType);
-                        PropertyUtils.setProperty(propertyDescriptor, sourceObject, convertedValue);
+                        PropertyUtils.setProperty(propertyDescriptor, propertyFindResult.getOwnObject(), convertedValue);
                     }
                 }
             }

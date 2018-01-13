@@ -15,22 +15,37 @@ public class MappingTest {
 
     @Test
     public void testMapping() throws Exception {
-        TestDomainObject domainObject = new TestDomainObject();
-        domainObject.setDomainName("dn123");
-        domainObject.setProperties(new FirstProperties("12.22"));
+        TestMappingObject testMappingObject = new TestMappingObject();
+        testMappingObject.setDomainName("dn123");
+        testMappingObject.setProperties(new FirstProperties("12.22"));
+        testMappingObject.setSecurityInfo(new TestSecurityInfo("600000", "PFYH"));
 
-        TestDTO testDTO = autoAssembler.assemble(domainObject, TestDTO.class);
+        TestMappingDTO testMappingDTO = autoAssembler.assemble(testMappingObject, TestMappingDTO.class);
 
-        assertEquals(testDTO.getDtoName(), domainObject.getDomainName());
-        assertEquals(testDTO.getFirstPrice(), "12.22");
-        assertNull(testDTO.getWrongPath());
+        assertEquals(testMappingDTO.getDtoName(), testMappingObject.getDomainName());
+        assertEquals(testMappingDTO.getFirstPrice(), "12.22");
+        assertNull(testMappingDTO.getWrongPath());
+        assertEquals(testMappingDTO.getStockInfo().getCode(), testMappingObject.getSecurityInfo().getCode());
+        assertEquals(testMappingDTO.getStockInfo().getName(), testMappingObject.getSecurityInfo().getName());
+
+        TestMappingObject disassembled = autoAssembler.disassemble(testMappingDTO, TestMappingObject.class);
+        assertEquals(disassembled, testMappingObject);
     }
 
-    public static class TestDomainObject {
+    @Test
+    public void testDisassembleWrongPath() throws Exception {
+        TestMappingDTO testMappingDTO = new TestMappingDTO();
+        testMappingDTO.setWrongPath("abc");
+
+        autoAssembler.disassemble(testMappingDTO, TestMappingObject.class);
+    }
+
+    public static class TestMappingObject {
         private Integer id;
         private String name;
         private String domainName;
-        private Object properties;
+        private Object properties = new FirstProperties();
+        private TestSecurityInfo securityInfo;
 
         public Integer getId() {
             return id;
@@ -64,17 +79,26 @@ public class MappingTest {
             this.properties = properties;
         }
 
+        public TestSecurityInfo getSecurityInfo() {
+            return securityInfo;
+        }
+
+        public void setSecurityInfo(TestSecurityInfo securityInfo) {
+            this.securityInfo = securityInfo;
+        }
+
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
 
-            TestDomainObject that = (TestDomainObject) o;
+            TestMappingObject that = (TestMappingObject) o;
 
             if (id != null ? !id.equals(that.id) : that.id != null) return false;
             if (name != null ? !name.equals(that.name) : that.name != null) return false;
             if (domainName != null ? !domainName.equals(that.domainName) : that.domainName != null) return false;
-            return properties != null ? properties.equals(that.properties) : that.properties == null;
+            if (properties != null ? !properties.equals(that.properties) : that.properties != null) return false;
+            return securityInfo != null ? securityInfo.equals(that.securityInfo) : that.securityInfo == null;
         }
 
         @Override
@@ -83,21 +107,23 @@ public class MappingTest {
             result = 31 * result + (name != null ? name.hashCode() : 0);
             result = 31 * result + (domainName != null ? domainName.hashCode() : 0);
             result = 31 * result + (properties != null ? properties.hashCode() : 0);
+            result = 31 * result + (securityInfo != null ? securityInfo.hashCode() : 0);
             return result;
         }
 
         @Override
         public String toString() {
-            return MoreObjects.toStringHelper(TestDomainObject.class).omitNullValues()
+            return MoreObjects.toStringHelper(TestMappingObject.class)
                     .add("id", id)
                     .add("name", name)
                     .add("domainName", domainName)
                     .add("properties", properties)
+                    .add("securityInfo", securityInfo)
                     .toString();
         }
     }
 
-    public static class TestDTO extends BaseDTO {
+    public static class TestMappingDTO extends BaseDTO {
         private String name;
         @FieldMapping(mappedProperty = "domainName")
         private String dtoName;
@@ -105,6 +131,8 @@ public class MappingTest {
         private String firstPrice;
         @FieldMapping(mappedProperty = "wrong.path")
         private String wrongPath;
+        @FieldMapping(mappedProperty = "securityInfo")
+        private TestSecurityInfoDTO stockInfo;
 
         public String getName() {
             return name;
@@ -137,14 +165,21 @@ public class MappingTest {
         public void setWrongPath(String wrongPath) {
             this.wrongPath = wrongPath;
         }
+
+        public TestSecurityInfoDTO getStockInfo() {
+            return stockInfo;
+        }
+
+        public void setStockInfo(TestSecurityInfoDTO stockInfo) {
+            this.stockInfo = stockInfo;
+        }
     }
 
-    /**
-     * @author caosh/shuhaoc@qq.com
-     * @date 2018/1/11
-     */
     public static class FirstProperties {
         private String price;
+
+        public FirstProperties() {
+        }
 
         public FirstProperties(String price) {
             this.price = price;
@@ -156,6 +191,21 @@ public class MappingTest {
 
         public void setPrice(String price) {
             this.price = price;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            FirstProperties that = (FirstProperties) o;
+
+            return price != null ? price.equals(that.price) : that.price == null;
+        }
+
+        @Override
+        public int hashCode() {
+            return price != null ? price.hashCode() : 0;
         }
     }
 }

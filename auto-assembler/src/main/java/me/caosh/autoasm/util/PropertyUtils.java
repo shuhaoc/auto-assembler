@@ -18,6 +18,10 @@ public class PropertyUtils {
             return null;
         }
 
+        return getProperty(propertyDescriptor, object);
+    }
+
+    public static Object getProperty(PropertyDescriptor propertyDescriptor, Object object) {
         Method readMethod = propertyDescriptor.getReadMethod();
         if (readMethod == null) {
             return null;
@@ -31,13 +35,13 @@ public class PropertyUtils {
         }
     }
 
-    public static Object getPathPropertySoftly(Object sourceObject, String propertyPath) {
+    public static Object getPathPropertySoftly(Object object, String propertyPath) {
         Object nextProperty = null;
         Scanner scanner = new Scanner(propertyPath);
         scanner.useDelimiter("\\.");
         while (scanner.hasNext()) {
             String partialPropertyName = scanner.next();
-            Object currentProperty = nextProperty == null ? sourceObject : nextProperty;
+            Object currentProperty = nextProperty == null ? object : nextProperty;
             nextProperty = getPropertySoftly(currentProperty, partialPropertyName);
             if (nextProperty == null) {
                 return null;
