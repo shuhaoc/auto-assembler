@@ -69,6 +69,19 @@ public class AutoAssembler {
         return targetObject;
     }
 
+    /**
+     * 将targetObject反装载为targetObject实例对象
+     * <p>
+     * 1. sourceClass需要支持无参构造
+     * 2. target对象的所有getters提供的属性值将被赋值给sourceClass创建的实例对象的setters方法
+     * 3. 赋值时支持基本的类型转换
+     *
+     * @param targetObject 目标对象
+     * @param sourceClass  源类型class
+     * @param <S>          源类型
+     * @param <T>          目标类型
+     * @return 源对象
+     */
     public <S, T> S disassemble(T targetObject, Class<S> sourceClass) {
         S sourceObject = ReflectionUtils.newInstance(sourceClass);
 
