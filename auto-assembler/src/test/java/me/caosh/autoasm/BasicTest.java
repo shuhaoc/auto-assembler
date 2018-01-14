@@ -1,12 +1,12 @@
 package me.caosh.autoasm;
 
 import com.google.common.base.MoreObjects;
+import com.google.common.base.Optional;
 import org.joda.time.MonthDay;
 import org.joda.time.YearMonth;
 import org.testng.annotations.Test;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNull;
+import static org.testng.Assert.*;
 
 /**
  * @author caosh/shuhaoc@qq.com
@@ -33,6 +33,7 @@ public class BasicTest {
         assertNull(testDTO.getSetterOnly());
         assertNull(testDTO.getNullIgnored());
         assertEquals(testDTO.getYearMonth(), testBasicObject.getYearMonth());
+        assertNull(testDTO.getOptionalString());
     }
 
     @Test
@@ -73,6 +74,20 @@ public class BasicTest {
         assertEquals(disassemble.getDefaultValueField(), Integer.valueOf(123));
     }
 
+    @Test
+    public void testOptional() throws Exception {
+        TestBasicObject testBasicObject = new TestBasicObject();
+        testBasicObject.setOptionalString("aaa");
+
+        TestDTO assemble = autoAssembler.assemble(testBasicObject, TestDTO.class);
+        assertNotNull(assemble.getOptionalString());
+        assertEquals(assemble.getOptionalString(), testBasicObject.getOptionalString().orNull());
+
+        testBasicObject.setOptionalString(null);
+        assemble = autoAssembler.assemble(testBasicObject, TestDTO.class);
+        assertNull(assemble.getOptionalString());
+    }
+
     public static class TestBasicObject {
         private Integer id;
         private String name;
@@ -81,6 +96,7 @@ public class BasicTest {
         private YearMonth nullIgnored;
         private YearMonth yearMonth;
         private Integer constInt;
+        private String optionalString;
 
         public Integer getId() {
             return id;
@@ -130,6 +146,14 @@ public class BasicTest {
             this.constInt = constInt;
         }
 
+        public void setOptionalString(String optionalString) {
+            this.optionalString = optionalString;
+        }
+
+        public Optional<String> getOptionalString() {
+            return Optional.fromNullable(optionalString);
+        }
+
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
@@ -144,7 +168,8 @@ public class BasicTest {
                 return false;
             if (nullIgnored != null ? !nullIgnored.equals(that.nullIgnored) : that.nullIgnored != null) return false;
             if (yearMonth != null ? !yearMonth.equals(that.yearMonth) : that.yearMonth != null) return false;
-            return constInt != null ? constInt.equals(that.constInt) : that.constInt == null;
+            if (constInt != null ? !constInt.equals(that.constInt) : that.constInt != null) return false;
+            return optionalString != null ? optionalString.equals(that.optionalString) : that.optionalString == null;
         }
 
         @Override
@@ -156,6 +181,7 @@ public class BasicTest {
             result = 31 * result + (nullIgnored != null ? nullIgnored.hashCode() : 0);
             result = 31 * result + (yearMonth != null ? yearMonth.hashCode() : 0);
             result = 31 * result + (constInt != null ? constInt.hashCode() : 0);
+            result = 31 * result + (optionalString != null ? optionalString.hashCode() : 0);
             return result;
         }
 
@@ -169,6 +195,7 @@ public class BasicTest {
                     .add("nullIgnored", nullIgnored)
                     .add("yearMonth", yearMonth)
                     .add("constInt", constInt)
+                    .add("optionalString", optionalString)
                     .toString();
         }
     }
@@ -192,6 +219,7 @@ public class BasicTest {
         private YearMonth yearMonth;
         @FieldMapping(defaultValue = "123")
         private Integer defaultValueField;
+        private String optionalString;
 
         public String getName() {
             return name;
@@ -231,6 +259,14 @@ public class BasicTest {
 
         public void setDefaultValueField(Integer defaultValueField) {
             this.defaultValueField = defaultValueField;
+        }
+
+        public String getOptionalString() {
+            return optionalString;
+        }
+
+        public void setOptionalString(String optionalString) {
+            this.optionalString = optionalString;
         }
     }
 

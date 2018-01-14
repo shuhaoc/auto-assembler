@@ -1,5 +1,6 @@
 package me.caosh.autoasm;
 
+import com.google.common.base.Optional;
 import me.caosh.autoasm.converter.ClassifiedConverter;
 import me.caosh.autoasm.converter.ConverterMapping;
 import me.caosh.autoasm.converter.DefaultConverterMapping;
@@ -136,11 +137,16 @@ public class AutoAssembler {
     /**
      * 进行字段转换
      *
-     * @param value              转换前字段值
+     * @param originalValue              转换前字段值
      * @param targetPropertyType 目标类型
      * @return 转换后字段值
      */
-    private Object convertValueOnAssembling(Object value, Class<?> targetPropertyType) {
+    private Object convertValueOnAssembling(Object originalValue, Class<?> targetPropertyType) {
+        Object value = stripOptionalValue(originalValue);
+        if (value == null) {
+            return null;
+        }
+
         if (targetPropertyType.isInstance(value)) {
             return value;
         }
@@ -171,7 +177,12 @@ public class AutoAssembler {
                 + " to " + targetPropertyType.getSimpleName());
     }
 
-    private Object convertValueOnDisassembling(Object value, Class<?> targetPropertyType, Class<?> expectedPropertyType) {
+    private Object convertValueOnDisassembling(Object originalValue, Class<?> targetPropertyType, Class<?> expectedPropertyType) {
+        Object value = stripOptionalValue(originalValue);
+        if (value == null) {
+            return null;
+        }
+
         if (expectedPropertyType.isInstance(value)) {
             return value;
         }
@@ -200,5 +211,14 @@ public class AutoAssembler {
         }
         throw new IllegalArgumentException("Type mismatch and cannot convert: " + value.getClass().getSimpleName()
                 + " to " + expectedPropertyType.getSimpleName());
+    }
+
+    private Object stripOptionalValue(Object originalValue) {
+        if (!(originalValue instanceof Optional)) {
+            return originalValue;
+        }
+
+        Optional optional = (Optional) originalValue;
+        return optional.orNull();
     }
 }
