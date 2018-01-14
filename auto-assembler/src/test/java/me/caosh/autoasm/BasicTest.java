@@ -1,5 +1,6 @@
 package me.caosh.autoasm;
 
+import com.google.common.base.Converter;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Optional;
 import org.joda.time.MonthDay;
@@ -46,6 +47,20 @@ public class BasicTest {
         TestDTO testDTO = autoAssembler.assemble(testBasicObject, TestDTO.class);
         TestBasicObject disassembled = autoAssembler.disassemble(testDTO, TestBasicObject.class);
         assertEquals(disassembled, testBasicObject);
+    }
+
+    @Test
+    public void testGetConverterFor() throws Exception {
+        Converter<TestBasicObject, TestDTO> converter = autoAssembler.getConverterFor(TestBasicObject.class, TestDTO.class);
+
+        TestBasicObject testBasicObject = new TestBasicObject();
+        testBasicObject.setId(12);
+        testBasicObject.setName("ccc");
+        testBasicObject.setYearMonth(YearMonth.now());
+
+        TestDTO testDTO = converter.convert(testBasicObject);
+        TestBasicObject convertBack = converter.reverse().convert(testDTO);
+        assertEquals(convertBack, testBasicObject);
     }
 
     @Test

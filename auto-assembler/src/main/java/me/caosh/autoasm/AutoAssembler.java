@@ -1,5 +1,6 @@
 package me.caosh.autoasm;
 
+import com.google.common.base.Converter;
 import com.google.common.base.Optional;
 import me.caosh.autoasm.converter.ClassifiedConverter;
 import me.caosh.autoasm.converter.ConverterMapping;
@@ -221,5 +222,19 @@ public class AutoAssembler {
 
         Optional optional = (Optional) originalValue;
         return optional.orNull();
+    }
+
+    public <S, T> Converter<S, T> getConverterFor(final Class<S> sourceClass, final Class<T> targetClass) {
+        return new Converter<S, T>() {
+            @Override
+            protected T doForward(S s) {
+                return assemble(s, targetClass);
+            }
+
+            @Override
+            protected S doBackward(T t) {
+                return disassemble(t, sourceClass);
+            }
+        };
     }
 }
