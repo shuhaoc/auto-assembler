@@ -20,6 +20,8 @@ import java.lang.reflect.Method;
  * @date 2018/1/10
  */
 public class AutoAssembler {
+    private static final String CLASS = "class";
+
     private ReadHandler assembleReadHandler;
     private ReadHandler disassembleReadHandler;
     private PropertyFinder disassemblePropertyFinder;
@@ -115,7 +117,7 @@ public class AutoAssembler {
     }
 
     private FieldMapping getFieldMapping(String propertyName, Method accessorMethod) {
-        if ("class".equals(propertyName)) {
+        if (CLASS.equals(propertyName)) {
             // 每个对象都有一个class属性，不处理
             return null;
         }

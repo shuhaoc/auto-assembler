@@ -79,5 +79,5 @@ public class PropertyUtils {
     private PropertyUtils() {
     }
 
-    private static final PropertyUtils _CODE_COVERAGE = new PropertyUtils();
+    private static final PropertyUtils CODE_COVERAGE = new PropertyUtils();
 }

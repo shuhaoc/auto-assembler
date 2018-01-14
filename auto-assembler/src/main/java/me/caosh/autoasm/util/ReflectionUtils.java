@@ -19,5 +19,5 @@ public class ReflectionUtils {
     private ReflectionUtils() {
     }
 
-    private static final ReflectionUtils _CODE_COVERAGE = new ReflectionUtils();
+    private static final ReflectionUtils CODE_COVERAGE = new ReflectionUtils();
 }

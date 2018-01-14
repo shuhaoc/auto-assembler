@@ -34,12 +34,12 @@ public class CommonConverters {
         return new Converter<String, Date>() {
             @Override
             protected Date doForward(String s) {
-                return DateConvertUtils.yyyy_MM_dd_HH_mm_ss.parseLocalDateTime(s).toDate();
+                return DateConvertUtils.YYYY_MM_DD_HH_MM_SS.parseLocalDateTime(s).toDate();
             }
 
             @Override
             protected String doBackward(Date date) {
-                return yyyy_MM_dd_HH_mm_ss.print(date.getTime());
+                return YYYY_MM_DD_HH_MM_SS.print(date.getTime());
             }
         };
     }
@@ -48,12 +48,12 @@ public class CommonConverters {
         return new Converter<String, LocalDateTime>() {
             @Override
             protected LocalDateTime doForward(String s) {
-                return DateConvertUtils.yyyy_MM_dd_HH_mm_ss.parseLocalDateTime(s);
+                return DateConvertUtils.YYYY_MM_DD_HH_MM_SS.parseLocalDateTime(s);
             }
 
             @Override
             protected String doBackward(LocalDateTime localDateTime) {
-                return yyyy_MM_dd_HH_mm_ss.print(localDateTime);
+                return YYYY_MM_DD_HH_MM_SS.print(localDateTime);
             }
         };
     }
@@ -62,12 +62,12 @@ public class CommonConverters {
         return new Converter<String, LocalDate>() {
             @Override
             protected LocalDate doForward(String s) {
-                return DateConvertUtils.yyyy_MM_dd.parseLocalDate(s);
+                return DateConvertUtils.YYYY_MM_DD.parseLocalDate(s);
             }
 
             @Override
             protected String doBackward(LocalDate localDate) {
-                return yyyy_MM_dd.print(localDate);
+                return YYYY_MM_DD.print(localDate);
             }
         };
     }
@@ -76,12 +76,12 @@ public class CommonConverters {
         return new Converter<String, LocalTime>() {
             @Override
             protected LocalTime doForward(String s) {
-                return DateConvertUtils.HH_mm_ss.parseLocalTime(s);
+                return DateConvertUtils.HH_MM_SS.parseLocalTime(s);
             }
 
             @Override
             protected String doBackward(LocalTime localTime) {
-                return HH_mm_ss.print(localTime);
+                return HH_MM_SS.print(localTime);
             }
         };
     }
@@ -89,5 +89,5 @@ public class CommonConverters {
     private CommonConverters() {
     }
 
-    private static final CommonConverters _CODE_COVERAGE = new CommonConverters();
+    private static final CommonConverters CODE_COVERAGE = new CommonConverters();
 }

@@ -7,6 +7,9 @@ import me.caosh.autoasm.converter.DefaultConverterMapping;
 
 /**
  * 支持自定义AutoAssembler的Builder
+ *
+ * @author caosh/shuhaoc@qq.com
+ * @date 2018/1/14
  */
 public class AutoAssemblerBuilder {
     private ConverterMapping converterMapping = new DefaultConverterMapping();
