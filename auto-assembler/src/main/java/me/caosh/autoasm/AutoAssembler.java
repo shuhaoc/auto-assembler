@@ -31,7 +31,8 @@ public class AutoAssembler {
                 new ReflectionReadHandler()
         );
         disassembleReadHandler = new ReadHandlerChain(
-                new ReflectionReadHandler()
+                new ReflectionReadHandler(),
+                new FieldMappingDisassembleReadHandler()
         );
         disassemblePropertyFinder = new FieldMappingDisassemblePropertyFinder();
     }

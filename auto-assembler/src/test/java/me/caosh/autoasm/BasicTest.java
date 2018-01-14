@@ -62,6 +62,17 @@ public class BasicTest {
         assertEquals(disassembled.getConstInt(), testConstDTO.getConstInt());
     }
 
+    @Test
+    public void testDefaultValue() throws Exception {
+        TestDefaultValueObject testDefaultValueObject = new TestDefaultValueObject();
+
+        TestDTO testDTO = autoAssembler.assemble(testDefaultValueObject, TestDTO.class);
+        assertNull(testDTO.getDefaultValueField());
+
+        TestDefaultValueObject disassemble = autoAssembler.disassemble(testDTO, TestDefaultValueObject.class);
+        assertEquals(disassemble.getDefaultValueField(), Integer.valueOf(123));
+    }
+
     public static class TestBasicObject {
         private Integer id;
         private String name;
@@ -162,11 +173,25 @@ public class BasicTest {
         }
     }
 
+    public static class TestDefaultValueObject {
+        private Integer defaultValueField;
+
+        public Integer getDefaultValueField() {
+            return defaultValueField;
+        }
+
+        public void setDefaultValueField(Integer defaultValueField) {
+            this.defaultValueField = defaultValueField;
+        }
+    }
+
     public static class TestDTO extends BaseDTO {
         private String name;
         private String setterOnly;
         private MonthDay nullIgnored;
         private YearMonth yearMonth;
+        @FieldMapping(defaultValue = "123")
+        private Integer defaultValueField;
 
         public String getName() {
             return name;
@@ -198,6 +223,14 @@ public class BasicTest {
 
         public void setYearMonth(YearMonth yearMonth) {
             this.yearMonth = yearMonth;
+        }
+
+        public Integer getDefaultValueField() {
+            return defaultValueField;
+        }
+
+        public void setDefaultValueField(Integer defaultValueField) {
+            this.defaultValueField = defaultValueField;
         }
     }
 
