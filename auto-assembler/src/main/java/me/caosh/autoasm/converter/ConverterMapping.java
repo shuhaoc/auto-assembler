@@ -47,8 +47,8 @@ public class ConverterMapping {
         Optional<ConverterItem> converter = Iterables.tryFind(converterItems, new Predicate<ConverterItem>() {
                     @Override
                     public boolean apply(ConverterItem converterItem) {
-                        return converterItem.getSourceClass().equals(sourceClass)
-                                && converterItem.getTargetClass().equals(targetClass);
+                        return converterItem.getSourceClass().isAssignableFrom(sourceClass)
+                                && converterItem.getTargetClass().isAssignableFrom(targetClass);
                     }
                 }
         );
