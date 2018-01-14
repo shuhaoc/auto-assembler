@@ -5,6 +5,7 @@ import com.google.common.base.Optional;
 import me.caosh.autoasm.converter.ClassifiedConverter;
 import me.caosh.autoasm.converter.ConverterMapping;
 import me.caosh.autoasm.converter.DefaultConverterMapping;
+import me.caosh.autoasm.converter.NotConfiguredClassifiedConverter;
 import me.caosh.autoasm.handler.*;
 import me.caosh.autoasm.util.PropertyFindResult;
 import me.caosh.autoasm.util.PropertyUtils;
@@ -71,7 +72,8 @@ public class AutoAssembler {
                 Object value = assembleReadHandler.read(fieldMapping, sourceObject, propertyName);
                 if (value != null) {
                     Class<?> propertyType = targetPropertyDescriptor.getPropertyType();
-                    Object convertedValue = convertValueOnAssembling(value, propertyType);
+                    ClassifiedConverter<?, ?> converter = getAssembleConverter(fieldMapping, value, propertyType);
+                    Object convertedValue = convertValueOnAssembling(value, propertyType, converter);
                     PropertyUtils.setProperty(targetPropertyDescriptor, targetObject, convertedValue);
                 }
             }
@@ -110,7 +112,8 @@ public class AutoAssembler {
                         PropertyDescriptor propertyDescriptor = propertyFindResult.getPropertyDescriptor();
                         Class<?> propertyType = propertyDescriptor.getPropertyType();
                         Class<?> targetPropertyType = targetPropertyDescriptor.getPropertyType();
-                        Object convertedValue = convertValueOnDisassembling(value, targetPropertyType, propertyType);
+                        ClassifiedConverter<?, ?> converter = getDisassembleConverter(fieldMapping, value, propertyType);
+                        Object convertedValue = convertValueOnDisassembling(value, targetPropertyType, propertyType, converter);
                         PropertyUtils.setProperty(propertyDescriptor, propertyFindResult.getOwnObject(), convertedValue);
                     }
                 }
@@ -136,14 +139,39 @@ public class AutoAssembler {
         return declaredField.getAnnotation(FieldMapping.class);
     }
 
+    private ClassifiedConverter<?, ?> getAssembleConverter(FieldMapping fieldMapping, Object value, Class<?> propertyType) {
+        if (fieldMapping != null) {
+            Class<? extends ClassifiedConverter> customConverterClass = fieldMapping.customConverterClass();
+            if (!NotConfiguredClassifiedConverter.class.equals(customConverterClass)) {
+                // 不是默认值的，使用配置的converter类
+                return ReflectionUtils.newInstance(customConverterClass);
+            }
+        }
+        return converterMapping.find(value.getClass(), propertyType);
+    }
+
+    private ClassifiedConverter<?, ?> getDisassembleConverter(FieldMapping fieldMapping, Object value, Class<?> propertyType) {
+        if (fieldMapping != null) {
+            Class<? extends ClassifiedConverter> customConverterClass = fieldMapping.customConverterClass();
+            if (!NotConfiguredClassifiedConverter.class.equals(customConverterClass)) {
+                // 不是默认值的，使用配置的converter类并取反向converter
+                return ReflectionUtils.newInstance(customConverterClass).reverse();
+            }
+        }
+        return converterMapping.find(value.getClass(), propertyType);
+    }
+
     /**
-     * 进行字段转换
+     * 在assemble中进行字段转换
      *
-     * @param originalValue              转换前字段值
+     * @param originalValue      转换前字段值
      * @param targetPropertyType 目标类型
+     * @param converter          类型不兼容时使用的converter
      * @return 转换后字段值
      */
-    private Object convertValueOnAssembling(Object originalValue, Class<?> targetPropertyType) {
+    private Object convertValueOnAssembling(Object originalValue,
+                                            Class<?> targetPropertyType,
+                                            ClassifiedConverter converter) {
         Object value = stripOptionalValue(originalValue);
         if (value == null) {
             return null;
@@ -153,7 +181,6 @@ public class AutoAssembler {
             return value;
         }
 
-        ClassifiedConverter converter = converterMapping.find(value.getClass(), targetPropertyType);
         if (converter != null) {
             return converter.convert(value, targetPropertyType);
         }
@@ -179,7 +206,19 @@ public class AutoAssembler {
                 + " to " + targetPropertyType.getSimpleName());
     }
 
-    private Object convertValueOnDisassembling(Object originalValue, Class<?> targetPropertyType, Class<?> expectedPropertyType) {
+    /**
+     * 在disassemble中进行字段转换
+     *
+     * @param originalValue        转换前字段值
+     * @param targetPropertyType   目标类型，即入参类型
+     * @param expectedPropertyType 返回值类型
+     * @param converter            类型不兼容时使用的converter
+     * @return 转换后字段值
+     */
+    private Object convertValueOnDisassembling(Object originalValue,
+                                               Class<?> targetPropertyType,
+                                               Class<?> expectedPropertyType,
+                                               ClassifiedConverter converter) {
         Object value = stripOptionalValue(originalValue);
         if (value == null) {
             return null;
@@ -189,7 +228,6 @@ public class AutoAssembler {
             return value;
         }
 
-        ClassifiedConverter converter = converterMapping.find(value.getClass(), expectedPropertyType);
         if (converter != null) {
             return converter.convert(value, expectedPropertyType);
         }

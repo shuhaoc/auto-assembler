@@ -1,5 +1,8 @@
 package me.caosh.autoasm;
 
+import me.caosh.autoasm.converter.ClassifiedConverter;
+import me.caosh.autoasm.converter.NotConfiguredClassifiedConverter;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -40,4 +43,12 @@ public @interface FieldMapping {
      * @return 映射属性名
      */
     String mappedProperty() default "";
+
+    /**
+     * 自定义converter，仅针对配置的字段有效
+     * 需要支持空参构造
+     *
+     * @return 自定义converter
+     */
+    Class<? extends ClassifiedConverter> customConverterClass() default NotConfiguredClassifiedConverter.class;
 }
