@@ -22,6 +22,10 @@ public class RuntimeTypeTest {
         TestConditionOrderDTO testConditionOrderDTO = autoAssembler.assemble(testConditionOrder, TestConditionOrderDTO.class);
         assertEquals(((FirstExternalPropertiesDTO) testConditionOrderDTO.getExternalProperties()).getX(),
                 ((FirstExternalProperties) testConditionOrder.getExternalProperties()).getX());
+
+        TestConditionOrder disassemble = autoAssembler.disassemble(testConditionOrderDTO, TestConditionOrder.class);
+        assertEquals(((FirstExternalProperties) disassemble.getExternalProperties()).getX(),
+                ((FirstExternalPropertiesDTO) testConditionOrderDTO.getExternalProperties()).getX());
     }
 
     @Test

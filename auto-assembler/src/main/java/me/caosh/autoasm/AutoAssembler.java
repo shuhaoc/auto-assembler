@@ -185,6 +185,19 @@ public class AutoAssembler {
         if (convertible != null) {
             return disassemble(value, expectedPropertyType);
         }
+        RuntimeType runtimeType = targetPropertyType.getAnnotation(RuntimeType.class);
+        if (runtimeType != null) {
+            Class<?>[] subClasses = runtimeType.value();
+            for (Class<?> subClass : subClasses) {
+                MappedClass mappedClass = subClass.getAnnotation(MappedClass.class);
+                if (mappedClass == null) {
+                    throw new IllegalArgumentException("Runtime type subclass should be annotated with @MappedClass");
+                }
+                if (subClass.isInstance(value)) {
+                    return disassemble(value, mappedClass.value());
+                }
+            }
+        }
         throw new IllegalArgumentException("Type mismatch and cannot convert: " + value.getClass().getSimpleName()
                 + " to " + expectedPropertyType.getSimpleName());
     }
