@@ -6,10 +6,11 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 import org.testng.annotations.Test;
 
+import java.beans.PropertyDescriptor;
 import java.math.BigDecimal;
 import java.util.Date;
 
-import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.*;
 
 /**
  * @author caosh/shuhaoc@qq.com
@@ -29,6 +30,7 @@ public class ConvertTest {
         testConvertObject.setStr2BigDecimal("99.88");
         testConvertObject.setTestEnum2Int(TestEnum.B);
         testConvertObject.setInt2TestEnum(1);
+        testConvertObject.setPrimitiveInt(5);
 
         TestConvertDTO testConvertDTO = autoAssembler.assemble(testConvertObject, TestConvertDTO.class);
 
@@ -40,6 +42,7 @@ public class ConvertTest {
         assertEquals(testConvertDTO.getStr2BigDecimal(), new BigDecimal("99.88"));
         assertEquals(testConvertDTO.getTestEnum2Int(), Integer.valueOf(1));
         assertEquals(testConvertDTO.getInt2TestEnum(), TestEnum.B);
+        assertEquals(testConvertDTO.getPrimitiveInt(), Integer.valueOf(5));
 
         TestConvertObject disassembled = autoAssembler.disassemble(testConvertDTO, TestConvertObject.class);
         assertEquals(disassembled, testConvertObject);
@@ -73,6 +76,20 @@ public class ConvertTest {
         assertEquals(disassembled, testDateObject);
     }
 
+    @Test
+    public void testPrimitive() throws Exception {
+        TestConvertObject testConvertObject = new TestConvertObject();
+        testConvertObject.setPrimitiveInt(123);
+
+        PropertyDescriptor propertyDescriptor = new PropertyDescriptor("primitiveInt", testConvertObject.getClass());
+        assertNotNull(propertyDescriptor);
+        assertEquals(propertyDescriptor.getPropertyType(), Integer.TYPE);
+        assertNotNull(propertyDescriptor.getReadMethod());
+        Object getterInvokeResult = propertyDescriptor.getReadMethod().invoke(testConvertObject);
+        assertTrue(getterInvokeResult instanceof Integer);
+        assertEquals(getterInvokeResult, testConvertObject.getPrimitiveInt());
+    }
+
     public static class TestConvertObject {
         private Integer int2String;
         private String str2Int;
@@ -82,6 +99,7 @@ public class ConvertTest {
         private String str2BigDecimal;
         private TestEnum testEnum2Int;
         private Integer int2TestEnum;
+        private int primitiveInt;
 
         public Integer getInt2String() {
             return int2String;
@@ -147,6 +165,14 @@ public class ConvertTest {
             this.int2TestEnum = int2TestEnum;
         }
 
+        public int getPrimitiveInt() {
+            return primitiveInt;
+        }
+
+        public void setPrimitiveInt(int primitiveInt) {
+            this.primitiveInt = primitiveInt;
+        }
+
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
@@ -154,6 +180,7 @@ public class ConvertTest {
 
             TestConvertObject that = (TestConvertObject) o;
 
+            if (primitiveInt != that.primitiveInt) return false;
             if (int2String != null ? !int2String.equals(that.int2String) : that.int2String != null) return false;
             if (str2Int != null ? !str2Int.equals(that.str2Int) : that.str2Int != null) return false;
             if (str2Long != null ? !str2Long.equals(that.str2Long) : that.str2Long != null) return false;
@@ -175,6 +202,7 @@ public class ConvertTest {
             result = 31 * result + (str2BigDecimal != null ? str2BigDecimal.hashCode() : 0);
             result = 31 * result + (testEnum2Int != null ? testEnum2Int.hashCode() : 0);
             result = 31 * result + (int2TestEnum != null ? int2TestEnum.hashCode() : 0);
+            result = 31 * result + primitiveInt;
             return result;
         }
 
@@ -189,6 +217,7 @@ public class ConvertTest {
                     .add("str2BigDecimal", str2BigDecimal)
                     .add("testEnum2Int", testEnum2Int)
                     .add("int2TestEnum", int2TestEnum)
+                    .add("primitiveInt", primitiveInt)
                     .toString();
         }
     }
@@ -202,6 +231,7 @@ public class ConvertTest {
         private BigDecimal str2BigDecimal;
         private Integer testEnum2Int;
         private TestEnum int2TestEnum;
+        private Integer primitiveInt;
 
         public String getInt2String() {
             return int2String;
@@ -265,6 +295,14 @@ public class ConvertTest {
 
         public void setInt2TestEnum(TestEnum int2TestEnum) {
             this.int2TestEnum = int2TestEnum;
+        }
+
+        public Integer getPrimitiveInt() {
+            return primitiveInt;
+        }
+
+        public void setPrimitiveInt(Integer primitiveInt) {
+            this.primitiveInt = primitiveInt;
         }
     }
 

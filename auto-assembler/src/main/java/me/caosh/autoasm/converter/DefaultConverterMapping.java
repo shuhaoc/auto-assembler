@@ -31,5 +31,9 @@ public class DefaultConverterMapping extends ConverterMapping {
         register(String.class, LocalTime.class, CommonConverters.stringLocalTimeConverter());
         register(ConvertibleEnum.class, Object.class,
                 (ClassifiedConverter) CommonClassifiedConverters.convertibleEnumConverter());
+        register(Integer.TYPE, Integer.class, CommonConverters.<Integer>assignDirectlyConverter());
+        register(Long.TYPE, Long.class, CommonConverters.<Long>assignDirectlyConverter());
+        register(Float.TYPE, Float.class, CommonConverters.<Float>assignDirectlyConverter());
+        register(Double.TYPE, Double.class, CommonConverters.<Double>assignDirectlyConverter());
     }
 }

@@ -18,6 +18,20 @@ import static me.caosh.autoasm.util.DateConvertUtils.*;
  * @date 2018/1/13
  */
 public class CommonConverters {
+    public static <T> Converter<T, T> assignDirectlyConverter() {
+        return new Converter<T, T>() {
+            @Override
+            protected T doForward(T t) {
+                return t;
+            }
+
+            @Override
+            protected T doBackward(T t) {
+                return t;
+            }
+        };
+    }
+
     public static Converter<String, BigDecimal> stringBigDecimalConverter() {
         return new Converter<String, BigDecimal>() {
             @Override
