@@ -120,7 +120,7 @@ public class AutoAssembler {
      * @return 转换后字段值
      */
     private Object convertValueOnAssembling(Object value, Class<?> targetPropertyType) {
-        if (targetPropertyType.equals(value.getClass())) {
+        if (targetPropertyType.isInstance(value)) {
             return value;
         }
 
@@ -151,7 +151,7 @@ public class AutoAssembler {
     }
 
     private Object convertValueOnDisassembling(Object value, Class<?> targetPropertyType, Class<?> expectedPropertyType) {
-        if (expectedPropertyType.equals(value.getClass())) {
+        if (expectedPropertyType.isInstance(value)) {
             return value;
         }
 

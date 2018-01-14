@@ -24,6 +24,20 @@ public class RuntimeTypeTest {
                 ((FirstExternalProperties) testConditionOrder.getExternalProperties()).getX());
     }
 
+    @Test
+    public void testSameTypeUsingInterface() throws Exception {
+        TestConditionOrder testConditionOrder = new TestConditionOrder();
+        FirstExternalProperties externalProperties = new FirstExternalProperties();
+        externalProperties.setX(123);
+        testConditionOrder.setExternalProperties(externalProperties);
+
+        TestConditionOrder assemble = autoAssembler.assemble(testConditionOrder, TestConditionOrder.class);
+        assertEquals(assemble, testConditionOrder);
+
+        TestConditionOrder disassemble = autoAssembler.disassemble(assemble, TestConditionOrder.class);
+        assertEquals(disassemble, assemble);
+    }
+
     public static class TestConditionOrder {
         private ExternalProperties externalProperties;
 
