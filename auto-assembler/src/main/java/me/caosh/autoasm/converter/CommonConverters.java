@@ -102,6 +102,76 @@ public class CommonConverters {
         };
     }
 
+    public static Converter<Date, LocalDateTime> dateLocalDateTimeConverter() {
+        return new Converter<Date, LocalDateTime>() {
+            @Override
+            protected LocalDateTime doForward(Date date) {
+                return LocalDateTime.fromDateFields(date);
+            }
+
+            @Override
+            protected Date doBackward(LocalDateTime localDateTime) {
+                return localDateTime.toDate();
+            }
+        };
+    }
+
+    public static Converter<Date, LocalDate> dateLocalDateConverter() {
+        return new Converter<Date, LocalDate>() {
+            @Override
+            protected LocalDate doForward(Date date) {
+                return LocalDate.fromDateFields(date);
+            }
+
+            @Override
+            protected Date doBackward(LocalDate localDate) {
+                return localDate.toDate();
+            }
+        };
+    }
+
+    public static Converter<Date, java.sql.Date> date2DbDateConverter() {
+        return new Converter<Date, java.sql.Date>() {
+            @Override
+            protected java.sql.Date doForward(Date date) {
+                return new java.sql.Date(date.getTime());
+            }
+
+            @Override
+            protected Date doBackward(java.sql.Date date) {
+                return date;
+            }
+        };
+    }
+
+    public static Converter<Date, java.sql.Time> date2DbTimeConverter() {
+        return new Converter<Date, java.sql.Time>() {
+            @Override
+            protected java.sql.Time doForward(Date date) {
+                return new java.sql.Time(date.getTime());
+            }
+
+            @Override
+            protected Date doBackward(java.sql.Time time) {
+                return time;
+            }
+        };
+    }
+
+    public static Converter<Date, java.sql.Timestamp> dateTimestampConverter() {
+        return new Converter<Date, java.sql.Timestamp>() {
+            @Override
+            protected java.sql.Timestamp doForward(Date date) {
+                return new java.sql.Timestamp(date.getTime());
+            }
+
+            @Override
+            protected Date doBackward(java.sql.Timestamp timestamp) {
+                return timestamp;
+            }
+        };
+    }
+
     private CommonConverters() {
     }
 

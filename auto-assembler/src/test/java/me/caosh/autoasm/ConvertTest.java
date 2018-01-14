@@ -8,6 +8,8 @@ import org.testng.annotations.Test;
 
 import java.beans.PropertyDescriptor;
 import java.math.BigDecimal;
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.util.Date;
 
 import static org.testng.Assert.*;
@@ -49,7 +51,7 @@ public class ConvertTest {
     }
 
     @Test
-    public void testConvertDate() throws Exception {
+    public void testConvertStringAndDate() throws Exception {
         TestDateObject testDateObject = new TestDateObject();
         // year 2018
         // month 1
@@ -74,6 +76,34 @@ public class ConvertTest {
 
         TestDateObject disassembled = autoAssembler.disassemble(testDateDTO, TestDateObject.class);
         assertEquals(disassembled, testDateObject);
+    }
+
+    @Test
+    public void testConvertDate() throws Exception {
+        Date date = new Date(118, 0, 11, 10, 46, 23);
+        TestDateObject testDateObject = new TestDateObject();
+        testDateObject.setDate2LocalDateTime(date);
+        testDateObject.setDate2LocalDate(new Date(118, 0, 11));
+        testDateObject.setDate2DbDate(new Date(118, 0, 11));
+        testDateObject.setDate2DbTime(new Date(70, 0, 1,
+                10, 46, 23));
+        testDateObject.setDate2Timestamp(date);
+
+        TestDateDTO testDateDTO = autoAssembler.assemble(testDateObject, TestDateDTO.class);
+        assertEquals(testDateDTO.getDate2LocalDateTime(), LocalDateTime.parse("2018-01-11T10:46:23"));
+        assertEquals(testDateDTO.getDate2LocalDate(), LocalDate.parse("2018-01-11"));
+        assertEquals(testDateDTO.getDate2DbDate(), new java.sql.Date(118, 0, 11));
+        assertEquals(testDateDTO.getDate2DbTime(), new java.sql.Time(10, 46, 23));
+        assertEquals(testDateDTO.getDate2Timestamp(), new java.sql.Timestamp(
+                118, 0, 11, 10, 46, 23, 0));
+
+        TestDateObject disassembled = autoAssembler.disassemble(testDateDTO, TestDateObject.class);
+        assertEquals(disassembled.getDate2LocalDateTime(), testDateObject.getDate2LocalDateTime());
+        assertEquals(disassembled.getDate2LocalDate(), testDateObject.getDate2LocalDate());
+        // 由于java.sql.Date等类是Date的子类，因此破坏了converters的对称性
+        assertEquals(disassembled.getDate2DbDate().getTime(), testDateObject.getDate2DbDate().getTime());
+        assertEquals(disassembled.getDate2DbTime().getTime(), testDateObject.getDate2DbTime().getTime());
+        assertEquals(disassembled.getDate2Timestamp().getTime(), testDateObject.getDate2Timestamp().getTime());
     }
 
     @Test
@@ -315,6 +345,11 @@ public class ConvertTest {
         private String str2LocalDateTime;
         private String str2LocalDate;
         private String str2LocalTime;
+        private Date date2LocalDateTime;
+        private Date date2LocalDate;
+        private Date date2DbDate;
+        private Date date2DbTime;
+        private Date date2Timestamp;
 
         public Date getDate2str() {
             return date2str;
@@ -380,6 +415,46 @@ public class ConvertTest {
             this.str2LocalTime = str2LocalTime;
         }
 
+        public Date getDate2LocalDateTime() {
+            return date2LocalDateTime;
+        }
+
+        public void setDate2LocalDateTime(Date date2LocalDateTime) {
+            this.date2LocalDateTime = date2LocalDateTime;
+        }
+
+        public Date getDate2LocalDate() {
+            return date2LocalDate;
+        }
+
+        public void setDate2LocalDate(Date date2LocalDate) {
+            this.date2LocalDate = date2LocalDate;
+        }
+
+        public Date getDate2DbDate() {
+            return date2DbDate;
+        }
+
+        public void setDate2DbDate(Date date2DbDate) {
+            this.date2DbDate = date2DbDate;
+        }
+
+        public Date getDate2DbTime() {
+            return date2DbTime;
+        }
+
+        public void setDate2DbTime(Date date2DbTime) {
+            this.date2DbTime = date2DbTime;
+        }
+
+        public Date getDate2Timestamp() {
+            return date2Timestamp;
+        }
+
+        public void setDate2Timestamp(Date date2Timestamp) {
+            this.date2Timestamp = date2Timestamp;
+        }
+
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
@@ -399,7 +474,15 @@ public class ConvertTest {
                 return false;
             if (str2LocalDate != null ? !str2LocalDate.equals(that.str2LocalDate) : that.str2LocalDate != null)
                 return false;
-            return str2LocalTime != null ? str2LocalTime.equals(that.str2LocalTime) : that.str2LocalTime == null;
+            if (str2LocalTime != null ? !str2LocalTime.equals(that.str2LocalTime) : that.str2LocalTime != null)
+                return false;
+            if (date2LocalDateTime != null ? !date2LocalDateTime.equals(that.date2LocalDateTime) : that.date2LocalDateTime != null)
+                return false;
+            if (date2LocalDate != null ? !date2LocalDate.equals(that.date2LocalDate) : that.date2LocalDate != null)
+                return false;
+            if (date2DbDate != null ? !date2DbDate.equals(that.date2DbDate) : that.date2DbDate != null) return false;
+            if (date2DbTime != null ? !date2DbTime.equals(that.date2DbTime) : that.date2DbTime != null) return false;
+            return date2Timestamp != null ? date2Timestamp.equals(that.date2Timestamp) : that.date2Timestamp == null;
         }
 
         @Override
@@ -412,6 +495,11 @@ public class ConvertTest {
             result = 31 * result + (str2LocalDateTime != null ? str2LocalDateTime.hashCode() : 0);
             result = 31 * result + (str2LocalDate != null ? str2LocalDate.hashCode() : 0);
             result = 31 * result + (str2LocalTime != null ? str2LocalTime.hashCode() : 0);
+            result = 31 * result + (date2LocalDateTime != null ? date2LocalDateTime.hashCode() : 0);
+            result = 31 * result + (date2LocalDate != null ? date2LocalDate.hashCode() : 0);
+            result = 31 * result + (date2DbDate != null ? date2DbDate.hashCode() : 0);
+            result = 31 * result + (date2DbTime != null ? date2DbTime.hashCode() : 0);
+            result = 31 * result + (date2Timestamp != null ? date2Timestamp.hashCode() : 0);
             return result;
         }
 
@@ -426,6 +514,11 @@ public class ConvertTest {
                     .add("str2LocalDateTime", str2LocalDateTime)
                     .add("str2LocalDate", str2LocalDate)
                     .add("str2LocalTime", str2LocalTime)
+                    .add("date2LocalDateTime", date2LocalDateTime)
+                    .add("date2LocalDate", date2LocalDate)
+                    .add("date2DbDate", date2DbDate)
+                    .add("date2DbTime", date2DbTime)
+                    .add("date2Timestamp", date2Timestamp)
                     .toString();
         }
     }
@@ -439,6 +532,11 @@ public class ConvertTest {
         private LocalDateTime str2LocalDateTime;
         private LocalDate str2LocalDate;
         private LocalTime str2LocalTime;
+        private LocalDateTime date2LocalDateTime;
+        private LocalDate date2LocalDate;
+        private java.sql.Date date2DbDate;
+        private java.sql.Time date2DbTime;
+        private java.sql.Timestamp date2Timestamp;
 
         public String getDate2str() {
             return date2str;
@@ -502,6 +600,46 @@ public class ConvertTest {
 
         public void setStr2LocalTime(LocalTime str2LocalTime) {
             this.str2LocalTime = str2LocalTime;
+        }
+
+        public LocalDateTime getDate2LocalDateTime() {
+            return date2LocalDateTime;
+        }
+
+        public void setDate2LocalDateTime(LocalDateTime date2LocalDateTime) {
+            this.date2LocalDateTime = date2LocalDateTime;
+        }
+
+        public LocalDate getDate2LocalDate() {
+            return date2LocalDate;
+        }
+
+        public void setDate2LocalDate(LocalDate date2LocalDate) {
+            this.date2LocalDate = date2LocalDate;
+        }
+
+        public java.sql.Date getDate2DbDate() {
+            return date2DbDate;
+        }
+
+        public void setDate2DbDate(java.sql.Date date2DbDate) {
+            this.date2DbDate = date2DbDate;
+        }
+
+        public Time getDate2DbTime() {
+            return date2DbTime;
+        }
+
+        public void setDate2DbTime(Time date2DbTime) {
+            this.date2DbTime = date2DbTime;
+        }
+
+        public Timestamp getDate2Timestamp() {
+            return date2Timestamp;
+        }
+
+        public void setDate2Timestamp(Timestamp date2Timestamp) {
+            this.date2Timestamp = date2Timestamp;
         }
     }
 

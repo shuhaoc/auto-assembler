@@ -29,6 +29,11 @@ public class DefaultConverterMapping extends ConverterMapping {
         register(String.class, LocalDateTime.class, CommonConverters.stringLocalDateTimeConverter());
         register(String.class, LocalDate.class, CommonConverters.stringLocalDateConverter());
         register(String.class, LocalTime.class, CommonConverters.stringLocalTimeConverter());
+        register(Date.class, LocalDateTime.class, CommonConverters.dateLocalDateTimeConverter());
+        register(Date.class, LocalDate.class, CommonConverters.dateLocalDateConverter());
+        register(Date.class, java.sql.Date.class, CommonConverters.date2DbDateConverter());
+        register(Date.class, java.sql.Time.class, CommonConverters.date2DbTimeConverter());
+        register(Date.class, java.sql.Timestamp.class, CommonConverters.dateTimestampConverter());
         register(ConvertibleEnum.class, Object.class,
                 (ClassifiedConverter) CommonClassifiedConverters.convertibleEnumConverter());
         register(Integer.TYPE, Integer.class, CommonConverters.<Integer>assignDirectlyConverter());
