@@ -62,7 +62,17 @@ public class AutoAssembler {
      */
     public <S, T> T assemble(S sourceObject, Class<T> targetClass) {
         T targetObject = ReflectionUtils.newInstance(targetClass);
+        assembleToTarget(sourceObject, targetObject);
+        return targetObject;
+    }
 
+    public <S, T> T assemble(S sourceObject, ConvertibleBuilder<T> targetBuilder) {
+        assembleToTarget(sourceObject, targetBuilder);
+        return targetBuilder.build();
+    }
+
+    private void assembleToTarget(Object sourceObject, Object targetObject) {
+        Class<?> targetClass = targetObject.getClass();
         PropertyDescriptor[] targetPropertyDescriptors = BeanUtils.getPropertyDescriptors(targetClass);
         for (PropertyDescriptor targetPropertyDescriptor : targetPropertyDescriptors) {
             Method writeMethod = targetPropertyDescriptor.getWriteMethod();
@@ -78,7 +88,6 @@ public class AutoAssembler {
                 }
             }
         }
-        return targetObject;
     }
 
     /**
@@ -96,7 +105,16 @@ public class AutoAssembler {
      */
     public <S, T> S disassemble(T targetObject, Class<S> sourceClass) {
         S sourceObject = ReflectionUtils.newInstance(sourceClass);
+        disassembleFromTarget(targetObject, sourceObject);
+        return sourceObject;
+    }
 
+    public <S, T> S disassemble(T targetObject, ConvertibleBuilder<S> sourceBuilder) {
+        disassembleFromTarget(targetObject, sourceBuilder);
+        return sourceBuilder.build();
+    }
+
+    private void disassembleFromTarget(Object targetObject, Object sourceObject) {
         Class<?> targetClass = targetObject.getClass();
         PropertyDescriptor[] targetPropertyDescriptors = BeanUtils.getPropertyDescriptors(targetClass);
         for (PropertyDescriptor targetPropertyDescriptor : targetPropertyDescriptors) {
@@ -119,7 +137,6 @@ public class AutoAssembler {
                 }
             }
         }
-        return sourceObject;
     }
 
     private FieldMapping getFieldMapping(String propertyName, Method accessorMethod) {

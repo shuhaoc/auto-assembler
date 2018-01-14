@@ -103,6 +103,21 @@ public class BasicTest {
         assertNull(assemble.getOptionalString());
     }
 
+    @Test
+    public void testBasicUsingBuilder() throws Exception {
+        TestBasicObject testBasicObject = new TestBasicObject();
+        testBasicObject.setId(12);
+        testBasicObject.setName("ccc");
+
+        TestDTO assemble = autoAssembler.assemble(testBasicObject, new TestDTOBuilder());
+
+        assertEquals(assemble.getId(), testBasicObject.getId());
+        assertEquals(assemble.getName(), testBasicObject.getName());
+
+        TestBasicObject disassembled = autoAssembler.disassemble(assemble, new TestBasicObjectBuilder());
+        assertEquals(disassembled, testBasicObject);
+    }
+
     public static class TestBasicObject {
         private Integer id;
         private String name;
@@ -112,6 +127,21 @@ public class BasicTest {
         private YearMonth yearMonth;
         private Integer constInt;
         private String optionalString;
+
+        public TestBasicObject() {
+        }
+
+        public TestBasicObject(Integer id, String name, String setterOnly, Integer transientValue, YearMonth nullIgnored,
+                               YearMonth yearMonth, Integer constInt, String optionalString) {
+            this.id = id;
+            this.name = name;
+            this.setterOnly = setterOnly;
+            this.transientValue = transientValue;
+            this.nullIgnored = nullIgnored;
+            this.yearMonth = yearMonth;
+            this.constInt = constInt;
+            this.optionalString = optionalString;
+        }
 
         public Integer getId() {
             return id;
@@ -235,6 +265,20 @@ public class BasicTest {
         @FieldMapping(defaultValue = "123")
         private Integer defaultValueField;
         private String optionalString;
+
+        public TestDTO() {
+        }
+
+        public TestDTO(Integer id, String name, String setterOnly, MonthDay nullIgnored, YearMonth yearMonth,
+                       Integer defaultValueField, String optionalString) {
+            setId(id);
+            this.name = name;
+            this.setterOnly = setterOnly;
+            this.nullIgnored = nullIgnored;
+            this.yearMonth = yearMonth;
+            this.defaultValueField = defaultValueField;
+            this.optionalString = optionalString;
+        }
 
         public String getName() {
             return name;
