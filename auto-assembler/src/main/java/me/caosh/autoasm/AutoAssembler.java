@@ -23,18 +23,23 @@ public class AutoAssembler {
     private ReadHandler assembleReadHandler;
     private ReadHandler disassembleReadHandler;
     private PropertyFinder disassemblePropertyFinder;
-    private ConverterMapping converterMapping = new DefaultConverterMapping();
+    private ConverterMapping converterMapping;
 
     public AutoAssembler() {
-        assembleReadHandler = new ReadHandlerChain(
+        this(new DefaultConverterMapping());
+    }
+
+    AutoAssembler(ConverterMapping converterMapping) {
+        this.assembleReadHandler = new ReadHandlerChain(
                 new FieldMappingAssembleReadHandler(),
                 new ReflectionReadHandler()
         );
-        disassembleReadHandler = new ReadHandlerChain(
+        this.disassembleReadHandler = new ReadHandlerChain(
                 new ReflectionReadHandler(),
                 new FieldMappingDisassembleReadHandler()
         );
-        disassemblePropertyFinder = new FieldMappingDisassemblePropertyFinder();
+        this.disassemblePropertyFinder = new FieldMappingDisassemblePropertyFinder();
+        this.converterMapping = converterMapping;
     }
 
     /**
