@@ -60,7 +60,7 @@ public class AutoAssembler {
                 Object value = assembleReadHandler.read(fieldMapping, sourceObject, propertyName);
                 if (value != null) {
                     Class<?> propertyType = targetPropertyDescriptor.getPropertyType();
-                    Object convertedValue = getConvertedValue(value, propertyType, propertyType);
+                    Object convertedValue = convertValueOnAssembling(value, propertyType);
                     PropertyUtils.setProperty(targetPropertyDescriptor, targetObject, convertedValue);
                 }
             }
@@ -86,7 +86,7 @@ public class AutoAssembler {
                         PropertyDescriptor propertyDescriptor = propertyFindResult.getPropertyDescriptor();
                         Class<?> propertyType = propertyDescriptor.getPropertyType();
                         Class<?> targetPropertyType = targetPropertyDescriptor.getPropertyType();
-                        Object convertedValue = getConvertedValue(value, targetPropertyType, propertyType);
+                        Object convertedValue = convertValueOnDisassembling(value, targetPropertyType, propertyType);
                         PropertyUtils.setProperty(propertyDescriptor, propertyFindResult.getOwnObject(), convertedValue);
                     }
                 }
@@ -115,12 +115,42 @@ public class AutoAssembler {
     /**
      * 进行字段转换
      *
-     * @param value                转换前字段值
-     * @param targetPropertyType   目标类型，assemble时为返回值类型，disassemble时为入参类型
-     * @param expectedPropertyType 返回值类型
+     * @param value              转换前字段值
+     * @param targetPropertyType 目标类型
      * @return 转换后字段值
      */
-    private Object getConvertedValue(Object value, Class<?> targetPropertyType, Class<?> expectedPropertyType) {
+    private Object convertValueOnAssembling(Object value, Class<?> targetPropertyType) {
+        if (targetPropertyType.equals(value.getClass())) {
+            return value;
+        }
+
+        Converter converter = converterMapping.find(value.getClass(), targetPropertyType);
+        if (converter != null) {
+            return converter.convert(value);
+        }
+
+        Convertible convertible = targetPropertyType.getAnnotation(Convertible.class);
+        if (convertible != null) {
+            return assemble(value, targetPropertyType);
+        }
+        RuntimeType runtimeType = targetPropertyType.getAnnotation(RuntimeType.class);
+        if (runtimeType != null) {
+            Class<?>[] subClasses = runtimeType.value();
+            for (Class<?> subClass : subClasses) {
+                MappedClass mappedClass = subClass.getAnnotation(MappedClass.class);
+                if (mappedClass == null) {
+                    throw new IllegalArgumentException("Runtime type subclass should be annotated with @MappedClass");
+                }
+                if (mappedClass.value().isInstance(value)) {
+                    return assemble(value, subClass);
+                }
+            }
+        }
+        throw new IllegalArgumentException("Type mismatch and cannot convert: " + value.getClass().getSimpleName()
+                + " to " + targetPropertyType.getSimpleName());
+    }
+
+    private Object convertValueOnDisassembling(Object value, Class<?> targetPropertyType, Class<?> expectedPropertyType) {
         if (expectedPropertyType.equals(value.getClass())) {
             return value;
         }
@@ -132,7 +162,7 @@ public class AutoAssembler {
 
         Convertible convertible = targetPropertyType.getAnnotation(Convertible.class);
         if (convertible != null) {
-            return new AutoAssembler().disassemble(value, expectedPropertyType);
+            return disassemble(value, expectedPropertyType);
         }
         throw new IllegalArgumentException("Type mismatch and cannot convert: " + value.getClass().getSimpleName()
                 + " to " + expectedPropertyType.getSimpleName());
