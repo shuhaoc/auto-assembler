@@ -27,6 +27,20 @@ public class ConverterMapping {
      * @param <T>         目标类型参数
      */
     public <S, T> void register(Class<S> sourceClass, Class<T> targetClass, Converter<S, T> converter) {
+        ClassifiedConverterWrapper<S, T> classifiedConverterWrapper = new ClassifiedConverterWrapper<>(converter);
+        register(sourceClass, targetClass, classifiedConverterWrapper);
+    }
+
+    /**
+     * 注册源类型与目标类型之间互转的{@link ClassifiedConverter}
+     *
+     * @param sourceClass 源类型class
+     * @param targetClass 目标类型class
+     * @param converter   classified converter
+     * @param <S>         源类型参数
+     * @param <T>         目标类型参数
+     */
+    public <S, T> void register(Class<S> sourceClass, Class<T> targetClass, ClassifiedConverter<S, T> converter) {
         ConverterItem<S, T> converterItem = new ConverterItem<>(sourceClass, targetClass, converter);
         converterItems.addFirst(converterItem);
 
@@ -43,7 +57,7 @@ public class ConverterMapping {
      * @param <T>         目标类型参数
      * @return 源类型转换为目标类型的converter
      */
-    public <S, T> Converter<S, T> find(final Class<S> sourceClass, final Class<T> targetClass) {
+    public <S, T> ClassifiedConverter<S, T> find(final Class<S> sourceClass, final Class<T> targetClass) {
         Optional<ConverterItem> converter = Iterables.tryFind(converterItems, new Predicate<ConverterItem>() {
                     @Override
                     public boolean apply(ConverterItem converterItem) {
@@ -61,9 +75,9 @@ public class ConverterMapping {
     private static class ConverterItem<A, B> {
         private final Class<A> sourceClass;
         private final Class<B> targetClass;
-        private final Converter<A, B> converter;
+        private final ClassifiedConverter<A, B> converter;
 
-        public ConverterItem(Class<A> sourceClass, Class<B> targetClass, Converter<A, B> converter) {
+        public ConverterItem(Class<A> sourceClass, Class<B> targetClass, ClassifiedConverter<A, B> converter) {
             Preconditions.checkNotNull(sourceClass, "sourceClass cannot be null");
             Preconditions.checkNotNull(targetClass, "targetClass cannot be null");
             Preconditions.checkNotNull(converter, "converter cannot be null");
@@ -84,7 +98,7 @@ public class ConverterMapping {
             return targetClass;
         }
 
-        public Converter<A, B> getConverter() {
+        public ClassifiedConverter<A, B> getConverter() {
             return converter;
         }
     }

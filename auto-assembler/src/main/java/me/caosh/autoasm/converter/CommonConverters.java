@@ -12,6 +12,8 @@ import java.util.Date;
 import static me.caosh.autoasm.util.DateConvertUtils.*;
 
 /**
+ * 常用类型的{@link Converter}
+ *
  * @author caosh/shuhaoc@qq.com
  * @date 2018/1/13
  */

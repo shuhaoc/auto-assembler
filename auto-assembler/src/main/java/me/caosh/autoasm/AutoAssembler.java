@@ -1,6 +1,6 @@
 package me.caosh.autoasm;
 
-import com.google.common.base.Converter;
+import me.caosh.autoasm.converter.ClassifiedConverter;
 import me.caosh.autoasm.converter.ConverterMapping;
 import me.caosh.autoasm.converter.DefaultConverterMapping;
 import me.caosh.autoasm.handler.*;
@@ -145,9 +145,9 @@ public class AutoAssembler {
             return value;
         }
 
-        Converter converter = converterMapping.find(value.getClass(), targetPropertyType);
+        ClassifiedConverter converter = converterMapping.find(value.getClass(), targetPropertyType);
         if (converter != null) {
-            return converter.convert(value);
+            return converter.convert(value, targetPropertyType);
         }
 
         Convertible convertible = targetPropertyType.getAnnotation(Convertible.class);
@@ -176,9 +176,9 @@ public class AutoAssembler {
             return value;
         }
 
-        Converter converter = converterMapping.find(value.getClass(), expectedPropertyType);
+        ClassifiedConverter converter = converterMapping.find(value.getClass(), expectedPropertyType);
         if (converter != null) {
-            return converter.convert(value);
+            return converter.convert(value, expectedPropertyType);
         }
 
         Convertible convertible = targetPropertyType.getAnnotation(Convertible.class);

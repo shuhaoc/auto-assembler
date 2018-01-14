@@ -27,6 +27,8 @@ public class ConvertTest {
         testConvertObject.setStr2Float("12.34");
         testConvertObject.setStr2Double("34.56111111111111");
         testConvertObject.setStr2BigDecimal("99.88");
+        testConvertObject.setTestEnum2Int(TestEnum.B);
+        testConvertObject.setInt2TestEnum(1);
 
         TestConvertDTO testConvertDTO = autoAssembler.assemble(testConvertObject, TestConvertDTO.class);
 
@@ -36,6 +38,8 @@ public class ConvertTest {
         assertEquals(testConvertDTO.getStr2Float(), 12.34f);
         assertEquals(testConvertDTO.getStr2Double(), 34.56111111111111d);
         assertEquals(testConvertDTO.getStr2BigDecimal(), new BigDecimal("99.88"));
+        assertEquals(testConvertDTO.getTestEnum2Int(), Integer.valueOf(1));
+        assertEquals(testConvertDTO.getInt2TestEnum(), TestEnum.B);
 
         TestConvertObject disassembled = autoAssembler.disassemble(testConvertDTO, TestConvertObject.class);
         assertEquals(disassembled, testConvertObject);
@@ -76,6 +80,8 @@ public class ConvertTest {
         private String str2Float;
         private String str2Double;
         private String str2BigDecimal;
+        private TestEnum testEnum2Int;
+        private Integer int2TestEnum;
 
         public Integer getInt2String() {
             return int2String;
@@ -125,6 +131,22 @@ public class ConvertTest {
             this.str2BigDecimal = str2BigDecimal;
         }
 
+        public TestEnum getTestEnum2Int() {
+            return testEnum2Int;
+        }
+
+        public void setTestEnum2Int(TestEnum testEnum2Int) {
+            this.testEnum2Int = testEnum2Int;
+        }
+
+        public Integer getInt2TestEnum() {
+            return int2TestEnum;
+        }
+
+        public void setInt2TestEnum(Integer int2TestEnum) {
+            this.int2TestEnum = int2TestEnum;
+        }
+
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
@@ -137,7 +159,10 @@ public class ConvertTest {
             if (str2Long != null ? !str2Long.equals(that.str2Long) : that.str2Long != null) return false;
             if (str2Float != null ? !str2Float.equals(that.str2Float) : that.str2Float != null) return false;
             if (str2Double != null ? !str2Double.equals(that.str2Double) : that.str2Double != null) return false;
-            return str2BigDecimal != null ? str2BigDecimal.equals(that.str2BigDecimal) : that.str2BigDecimal == null;
+            if (str2BigDecimal != null ? !str2BigDecimal.equals(that.str2BigDecimal) : that.str2BigDecimal != null)
+                return false;
+            if (testEnum2Int != that.testEnum2Int) return false;
+            return int2TestEnum != null ? int2TestEnum.equals(that.int2TestEnum) : that.int2TestEnum == null;
         }
 
         @Override
@@ -148,6 +173,8 @@ public class ConvertTest {
             result = 31 * result + (str2Float != null ? str2Float.hashCode() : 0);
             result = 31 * result + (str2Double != null ? str2Double.hashCode() : 0);
             result = 31 * result + (str2BigDecimal != null ? str2BigDecimal.hashCode() : 0);
+            result = 31 * result + (testEnum2Int != null ? testEnum2Int.hashCode() : 0);
+            result = 31 * result + (int2TestEnum != null ? int2TestEnum.hashCode() : 0);
             return result;
         }
 
@@ -160,6 +187,8 @@ public class ConvertTest {
                     .add("str2Float", str2Float)
                     .add("str2Double", str2Double)
                     .add("str2BigDecimal", str2BigDecimal)
+                    .add("testEnum2Int", testEnum2Int)
+                    .add("int2TestEnum", int2TestEnum)
                     .toString();
         }
     }
@@ -171,6 +200,8 @@ public class ConvertTest {
         private Float str2Float;
         private Double str2Double;
         private BigDecimal str2BigDecimal;
+        private Integer testEnum2Int;
+        private TestEnum int2TestEnum;
 
         public String getInt2String() {
             return int2String;
@@ -218,6 +249,22 @@ public class ConvertTest {
 
         public void setStr2BigDecimal(BigDecimal str2BigDecimal) {
             this.str2BigDecimal = str2BigDecimal;
+        }
+
+        public Integer getTestEnum2Int() {
+            return testEnum2Int;
+        }
+
+        public void setTestEnum2Int(Integer testEnum2Int) {
+            this.testEnum2Int = testEnum2Int;
+        }
+
+        public TestEnum getInt2TestEnum() {
+            return int2TestEnum;
+        }
+
+        public void setInt2TestEnum(TestEnum int2TestEnum) {
+            this.int2TestEnum = int2TestEnum;
         }
     }
 
@@ -417,6 +464,23 @@ public class ConvertTest {
 
         public void setStr2LocalTime(LocalTime str2LocalTime) {
             this.str2LocalTime = str2LocalTime;
+        }
+    }
+
+    public enum TestEnum implements ConvertibleEnum<Integer> {
+        A(0),
+        B(1),
+        C(2);
+
+        TestEnum(int value) {
+            this.value = value;
+        }
+
+        private final int value;
+
+        @Override
+        public Integer getValue() {
+            return value;
         }
     }
 }

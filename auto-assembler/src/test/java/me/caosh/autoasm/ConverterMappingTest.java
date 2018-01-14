@@ -1,14 +1,14 @@
 package me.caosh.autoasm;
 
 import com.google.common.base.Converter;
+import me.caosh.autoasm.converter.ClassifiedConverter;
 import me.caosh.autoasm.converter.CommonConverters;
 import me.caosh.autoasm.converter.DefaultConverterMapping;
 import org.testng.annotations.Test;
 
 import java.util.Date;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.*;
 
 /**
  * @author shuhaoc@qq.com
@@ -18,11 +18,11 @@ public class ConverterMappingTest {
     @Test
     public void testPriority() throws Exception {
         DefaultConverterMapping converterMapping = new DefaultConverterMapping();
-        Converter<MyDate, String> myDateStringConverter = converterMapping.find(MyDate.class, String.class);
+        ClassifiedConverter<MyDate, String> myDateStringConverter = converterMapping.find(MyDate.class, String.class);
         assertNotNull(myDateStringConverter);
 
         MyDate myDate = new MyDate(118, 0, 14);
-        assertEquals(myDateStringConverter.convert(myDate), "2018-01-14 00:00:00");
+        assertEquals(myDateStringConverter.convert(myDate, String.class), "2018-01-14 00:00:00");
 
         Converter<String, MyDate> customStringMyDateConverter = CommonConverters.stringDateConverter()
                 .andThen(new Converter<Date, MyDate>() {
@@ -38,9 +38,9 @@ public class ConverterMappingTest {
                 });
         Converter<MyDate, String> customMyDateStringConverter = customStringMyDateConverter.reverse();
         converterMapping.register(MyDate.class, String.class, customMyDateStringConverter);
-        Converter<MyDate, String> myDateStringConverter2 = converterMapping.find(MyDate.class, String.class);
-        assertEquals(myDateStringConverter2, customMyDateStringConverter);
-        assertEquals(myDateStringConverter2.convert(myDate), "2018-01-14 00:00:00");
+        ClassifiedConverter<MyDate, String> myDateStringConverter2 = converterMapping.find(MyDate.class, String.class);
+        assertNotEquals(myDateStringConverter2, myDateStringConverter);
+        assertEquals(myDateStringConverter2.convert(myDate, String.class), "2018-01-14 00:00:00");
     }
 
     public static class MyDate extends Date {
