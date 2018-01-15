@@ -16,6 +16,7 @@ import me.caosh.autoasm.handler.PropertyFinder;
 import me.caosh.autoasm.handler.ReadHandler;
 import me.caosh.autoasm.handler.ReadHandlerChain;
 import me.caosh.autoasm.handler.ReflectionReadHandler;
+import me.caosh.autoasm.util.AssemblerWithBuilder;
 import me.caosh.autoasm.util.PropertyFindResult;
 import me.caosh.autoasm.util.PropertyUtils;
 import me.caosh.autoasm.util.ReflectionUtils;
@@ -83,9 +84,9 @@ public class AutoAssembler {
         return targetObject;
     }
 
-    public <S, T> T assemble(S sourceObject, ConvertibleBuilder<T> targetBuilder) {
+    public <S, BT extends ConvertibleBuilder> BT assemble(S sourceObject, BT targetBuilder) {
         assembleToTarget(sourceObject, targetBuilder);
-        return targetBuilder.build();
+        return targetBuilder;
     }
 
     public <S, T> List<T> assembleList(Iterable<S> sourceList, Class<T> targetElementClass) {
@@ -150,9 +151,9 @@ public class AutoAssembler {
         return sourceObject;
     }
 
-    public <S, T> S disassemble(T targetObject, ConvertibleBuilder<S> sourceBuilder) {
+    public <SB, T> SB disassemble(T targetObject, SB sourceBuilder) {
         disassembleFromTarget(targetObject, sourceBuilder);
-        return sourceBuilder.build();
+        return sourceBuilder;
     }
 
     public <S, T> List<S> disassembleList(Iterable<T> targetList, Class<S> sourceElementClass) {
@@ -400,5 +401,17 @@ public class AutoAssembler {
                 return disassemble(t, sourceClass);
             }
         };
+    }
+
+    /**
+     * 使用ConvertibleBuilder进行装载，返回this与convertibleBuilder的绑定对象
+     * 用于链式调用的开头
+     *
+     * @param convertibleBuilder Builder
+     * @param <T>                返回类型
+     * @return 绑定对象，用于链式调用
+     */
+    public <T, BT extends ConvertibleBuilder<T>> AssemblerWithBuilder<T, BT> useBuilder(BT convertibleBuilder) {
+        return new AssemblerWithBuilder<>(this, convertibleBuilder);
     }
 }

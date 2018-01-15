@@ -109,12 +109,18 @@ public class BasicTest {
         testBasicObject.setId(12);
         testBasicObject.setName("ccc");
 
-        TestDTO assemble = autoAssembler.assemble(testBasicObject, new TestDTOBuilder());
+        TestDTO assemble = autoAssembler.assemble(testBasicObject, new TestDTOBuilder()).build();
 
         assertEquals(assemble.getId(), testBasicObject.getId());
         assertEquals(assemble.getName(), testBasicObject.getName());
 
-        TestBasicObject disassembled = autoAssembler.disassemble(assemble, new TestBasicObjectBuilder());
+        TestDTO assemble2 = autoAssembler.useBuilder(new TestDTOBuilder())
+                .assemble(testBasicObject)
+                .build();
+        assertEquals(assemble2.getId(), assemble.getId());
+        assertEquals(assemble2.getName(), assemble.getName());
+
+        TestBasicObject disassembled = autoAssembler.disassemble(assemble, new TestBasicObjectBuilder()).build();
         assertEquals(disassembled, testBasicObject);
     }
 
