@@ -32,6 +32,20 @@ public class CommonConverters {
         };
     }
 
+    public static Converter<String, Boolean> stringBooleanConverter() {
+        return new Converter<String, Boolean>() {
+            @Override
+            protected Boolean doForward(String s) {
+                return Boolean.valueOf(s);
+            }
+
+            @Override
+            protected String doBackward(Boolean b) {
+                return String.valueOf(b);
+            }
+        };
+    }
+
     public static Converter<String, BigDecimal> stringBigDecimalConverter() {
         return new Converter<String, BigDecimal>() {
             @Override

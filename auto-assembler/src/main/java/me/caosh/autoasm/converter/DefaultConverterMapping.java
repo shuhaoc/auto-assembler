@@ -24,6 +24,7 @@ public class DefaultConverterMapping extends ConverterMapping {
         register(String.class, Long.class, Longs.stringConverter());
         register(String.class, Float.class, Floats.stringConverter());
         register(String.class, Double.class, Doubles.stringConverter());
+        register(String.class, Boolean.class, CommonConverters.stringBooleanConverter());
         register(String.class, BigDecimal.class, CommonConverters.stringBigDecimalConverter());
         register(String.class, Date.class, CommonConverters.stringDateConverter());
         register(String.class, LocalDateTime.class, CommonConverters.stringLocalDateTimeConverter());
