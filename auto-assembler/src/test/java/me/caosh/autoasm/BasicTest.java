@@ -118,6 +118,20 @@ public class BasicTest {
         assertEquals(disassembled, testBasicObject);
     }
 
+    @Test
+    public void testSkipped() throws Exception {
+        TestBasicObject testBasicObject = new TestBasicObject();
+        testBasicObject.setSkippedField(1223);
+
+        TestDTO assemble = autoAssembler.assemble(testBasicObject, TestDTO.class);
+        assertNull(assemble.getSkippedField());
+
+        TestDTO testDTO = new TestDTO();
+        testDTO.setSkippedField(2333);
+        TestBasicObject disassemble = autoAssembler.disassemble(assemble, TestBasicObject.class);
+        assertNull(disassemble.getSkippedField());
+    }
+
     public static class TestBasicObject {
         private Integer id;
         private String name;
@@ -127,6 +141,7 @@ public class BasicTest {
         private YearMonth yearMonth;
         private Integer constInt;
         private String optionalString;
+        private Integer skippedField;
 
         public TestBasicObject() {
         }
@@ -199,6 +214,14 @@ public class BasicTest {
             return Optional.fromNullable(optionalString);
         }
 
+        public Integer getSkippedField() {
+            return skippedField;
+        }
+
+        public void setSkippedField(Integer skippedField) {
+            this.skippedField = skippedField;
+        }
+
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
@@ -214,7 +237,9 @@ public class BasicTest {
             if (nullIgnored != null ? !nullIgnored.equals(that.nullIgnored) : that.nullIgnored != null) return false;
             if (yearMonth != null ? !yearMonth.equals(that.yearMonth) : that.yearMonth != null) return false;
             if (constInt != null ? !constInt.equals(that.constInt) : that.constInt != null) return false;
-            return optionalString != null ? optionalString.equals(that.optionalString) : that.optionalString == null;
+            if (optionalString != null ? !optionalString.equals(that.optionalString) : that.optionalString != null)
+                return false;
+            return skippedField != null ? skippedField.equals(that.skippedField) : that.skippedField == null;
         }
 
         @Override
@@ -227,6 +252,7 @@ public class BasicTest {
             result = 31 * result + (yearMonth != null ? yearMonth.hashCode() : 0);
             result = 31 * result + (constInt != null ? constInt.hashCode() : 0);
             result = 31 * result + (optionalString != null ? optionalString.hashCode() : 0);
+            result = 31 * result + (skippedField != null ? skippedField.hashCode() : 0);
             return result;
         }
 
@@ -241,6 +267,7 @@ public class BasicTest {
                     .add("yearMonth", yearMonth)
                     .add("constInt", constInt)
                     .add("optionalString", optionalString)
+                    .add("skippedField", skippedField)
                     .toString();
         }
     }
@@ -265,6 +292,8 @@ public class BasicTest {
         @FieldMapping(defaultValue = "123")
         private Integer defaultValueField;
         private String optionalString;
+        @SkippedField
+        private Integer skippedField;
 
         public TestDTO() {
         }
@@ -326,6 +355,14 @@ public class BasicTest {
 
         public void setOptionalString(String optionalString) {
             this.optionalString = optionalString;
+        }
+
+        public Integer getSkippedField() {
+            return skippedField;
+        }
+
+        public void setSkippedField(Integer skippedField) {
+            this.skippedField = skippedField;
         }
     }
 

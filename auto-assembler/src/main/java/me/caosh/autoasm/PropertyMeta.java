@@ -14,10 +14,12 @@ import java.lang.reflect.Type;
 public class PropertyMeta {
     private final Type fieldGenericType;
     private final FieldMapping fieldMapping;
+    private final SkippedField skippedField;
 
-    public PropertyMeta(Type fieldGenericType, FieldMapping fieldMapping) {
+    public PropertyMeta(Type fieldGenericType, FieldMapping fieldMapping, SkippedField skippedField) {
         this.fieldGenericType = fieldGenericType;
         this.fieldMapping = fieldMapping;
+        this.skippedField = skippedField;
     }
 
     public Type getFieldGenericType() {
@@ -28,11 +30,16 @@ public class PropertyMeta {
         return Optional.fromNullable(fieldMapping);
     }
 
+    public Optional<SkippedField> getSkippedField() {
+        return Optional.fromNullable(skippedField);
+    }
+
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(PropertyMeta.class).omitNullValues()
                 .add("fieldGenericType", fieldGenericType)
                 .add("fieldMapping", fieldMapping)
+                .add("skippedField", skippedField)
                 .toString();
     }
 }
