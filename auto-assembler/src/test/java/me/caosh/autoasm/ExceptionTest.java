@@ -11,7 +11,7 @@ import static org.testng.Assert.assertNull;
  */
 public class ExceptionTest {
 
-    private final AutoAssembler autoAssembler = new AutoAssembler();
+    private final AutoAssembler autoAssembler = AutoAssemblers.getDefault();
 
     @Test(expectedExceptions = RuntimeException.class,
             expectedExceptionsMessageRegExp = "Invoke write method failed: <String> TestWriteFailedDTO#setName\\(abc23\\)")

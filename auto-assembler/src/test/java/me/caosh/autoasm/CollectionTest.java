@@ -16,7 +16,7 @@ import static org.testng.Assert.*;
  */
 public class CollectionTest {
 
-    private final AutoAssembler autoAssembler = new AutoAssembler();
+    private final AutoAssembler autoAssembler = AutoAssemblers.getDefault();
 
     private List testRawList;
     private List<String> testStringList;

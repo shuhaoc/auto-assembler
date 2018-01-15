@@ -19,7 +19,7 @@ import static org.testng.Assert.*;
  * @date 2018/1/13
  */
 public class ConvertTest {
-    private final AutoAssembler autoAssembler = new AutoAssembler();
+    private final AutoAssembler autoAssembler = AutoAssemblers.getDefault();
 
     @Test
     public void testConvert() throws Exception {

@@ -14,7 +14,7 @@ import static org.testng.Assert.*;
  * @date 2018/1/10
  */
 public class BasicTest {
-    private final AutoAssembler autoAssembler = new AutoAssembler();
+    private final AutoAssembler autoAssembler = AutoAssemblers.getDefault();
 
     @Test
     public void testBasic() throws Exception {

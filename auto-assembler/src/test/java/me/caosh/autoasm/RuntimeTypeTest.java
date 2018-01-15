@@ -10,7 +10,7 @@ import static org.testng.Assert.assertEquals;
  * @date 2018/1/13
  */
 public class RuntimeTypeTest {
-    private AutoAssembler autoAssembler = new AutoAssembler();
+    private AutoAssembler autoAssembler = AutoAssemblers.getDefault();
 
     @Test
     public void test() throws Exception {

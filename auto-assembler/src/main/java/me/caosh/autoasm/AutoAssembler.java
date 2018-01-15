@@ -44,7 +44,7 @@ public class AutoAssembler {
     private PropertyFinder disassemblePropertyFinder;
     private ConverterMapping converterMapping;
 
-    public AutoAssembler() {
+    AutoAssembler() {
         this(new DefaultConverterMapping());
     }
 

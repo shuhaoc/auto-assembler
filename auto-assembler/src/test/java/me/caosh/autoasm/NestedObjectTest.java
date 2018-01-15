@@ -10,7 +10,7 @@ import static org.testng.Assert.assertNotNull;
  * @date 2018/1/12
  */
 public class NestedObjectTest {
-    private AutoAssembler autoAssembler = new AutoAssembler();
+    private AutoAssembler autoAssembler = AutoAssemblers.getDefault();
 
     @Test
     public void test() throws Exception {

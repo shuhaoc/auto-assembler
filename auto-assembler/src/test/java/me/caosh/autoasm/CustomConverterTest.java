@@ -14,7 +14,7 @@ import static org.testng.Assert.assertNull;
  * @date 2018/1/14
  */
 public class CustomConverterTest {
-    private final AutoAssembler autoAssembler = new AutoAssembler();
+    private final AutoAssembler autoAssembler = AutoAssemblers.getDefault();
 
     @Test
     public void testNull() throws Exception {
