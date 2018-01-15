@@ -144,6 +144,20 @@ public class CommonConverters {
         };
     }
 
+    public static Converter<Date, LocalTime> dateLocalTimeConverter() {
+        return new Converter<Date, LocalTime>() {
+            @Override
+            protected LocalTime doForward(Date date) {
+                return LocalTime.fromDateFields(date);
+            }
+
+            @Override
+            protected Date doBackward(LocalTime localTime) {
+                return localTime.toDateTimeToday().toLocalDateTime().toDate();
+            }
+        };
+    }
+
     public static Converter<Date, java.sql.Date> date2DbDateConverter() {
         return new Converter<Date, java.sql.Date>() {
             @Override
