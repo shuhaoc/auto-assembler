@@ -132,6 +132,21 @@ public class BasicTest {
         assertNull(disassemble.getSkippedField());
     }
 
+    @Test
+    public void testWriteOnlyReadonly() throws Exception {
+        TestBasicObject testBasicObject = new TestBasicObject();
+
+        TestDTO assemble = autoAssembler.assemble(testBasicObject, TestDTO.class);
+        assertEquals(assemble.getReadonlyInt(), assemble.getReadonlyInt());
+        assertNull(assemble.getWriteOnlyInt());
+
+        TestDTO testDTO = new TestDTO();
+        testDTO.setWriteOnlyInt(11);
+        testDTO.setReadonlyInt(22);
+        // see stdout
+        autoAssembler.disassemble(testDTO, TestBasicObject.class);
+    }
+
     public static class TestBasicObject {
         private Integer id;
         private String name;
@@ -222,6 +237,14 @@ public class BasicTest {
             this.skippedField = skippedField;
         }
 
+        public void setWriteOnlyInt(Integer x) {
+            System.out.println("setWriteOnlyInt: " + x);
+        }
+
+        public Integer getReadonlyInt() {
+            return 333;
+        }
+
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
@@ -294,6 +317,8 @@ public class BasicTest {
         private String optionalString;
         @SkippedField
         private Integer skippedField;
+        private Integer writeOnlyInt;
+        private Integer readonlyInt;
 
         public TestDTO() {
         }
@@ -363,6 +388,22 @@ public class BasicTest {
 
         public void setSkippedField(Integer skippedField) {
             this.skippedField = skippedField;
+        }
+
+        public Integer getWriteOnlyInt() {
+            return writeOnlyInt;
+        }
+
+        public void setWriteOnlyInt(Integer writeOnlyInt) {
+            this.writeOnlyInt = writeOnlyInt;
+        }
+
+        public Integer getReadonlyInt() {
+            return readonlyInt;
+        }
+
+        public void setReadonlyInt(Integer readonlyInt) {
+            this.readonlyInt = readonlyInt;
         }
     }
 
