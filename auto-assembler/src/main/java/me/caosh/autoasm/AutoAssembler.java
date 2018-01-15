@@ -2,11 +2,19 @@ package me.caosh.autoasm;
 
 import com.google.common.base.Converter;
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import me.caosh.autoasm.converter.ClassifiedConverter;
 import me.caosh.autoasm.converter.ConverterMapping;
 import me.caosh.autoasm.converter.DefaultConverterMapping;
 import me.caosh.autoasm.converter.NotConfiguredClassifiedConverter;
-import me.caosh.autoasm.handler.*;
+import me.caosh.autoasm.handler.FieldMappingAssembleReadHandler;
+import me.caosh.autoasm.handler.FieldMappingDisassemblePropertyFinder;
+import me.caosh.autoasm.handler.FieldMappingDisassembleReadHandler;
+import me.caosh.autoasm.handler.PropertyFinder;
+import me.caosh.autoasm.handler.ReadHandler;
+import me.caosh.autoasm.handler.ReadHandlerChain;
+import me.caosh.autoasm.handler.ReflectionReadHandler;
 import me.caosh.autoasm.util.PropertyFindResult;
 import me.caosh.autoasm.util.PropertyUtils;
 import me.caosh.autoasm.util.ReflectionUtils;
@@ -15,6 +23,9 @@ import org.springframework.beans.BeanUtils;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.List;
 
 /**
  * 自动装载器，自动完成domain object与pojo之间或pojo之间的转换
@@ -61,6 +72,10 @@ public class AutoAssembler {
      * @return 目标对象，不可能为空
      */
     public <S, T> T assemble(S sourceObject, Class<T> targetClass) {
+        ClassifiedConverter<S, T> scalaConverter = converterMapping.find((Class<S>) sourceObject.getClass(), targetClass);
+        if (scalaConverter != null) {
+            return scalaConverter.convert(sourceObject, targetClass);
+        }
         T targetObject = ReflectionUtils.newInstance(targetClass);
         assembleToTarget(sourceObject, targetObject);
         return targetObject;
@@ -78,12 +93,18 @@ public class AutoAssembler {
             Method writeMethod = targetPropertyDescriptor.getWriteMethod();
             if (writeMethod != null) {
                 String propertyName = targetPropertyDescriptor.getName();
-                FieldMapping fieldMapping = getFieldMapping(propertyName, writeMethod);
-                Object value = assembleReadHandler.read(fieldMapping, sourceObject, propertyName);
+                if (CLASS.equals(propertyName)) {
+                    // 每个对象都有一个class属性，不处理
+                    continue;
+                }
+
+                PropertyMeta propertyMeta = getPropertyMeta(propertyName, writeMethod);
+                Object value = assembleReadHandler.read(propertyMeta.getFieldMapping().orNull(), sourceObject, propertyName);
                 if (value != null) {
                     Class<?> propertyType = targetPropertyDescriptor.getPropertyType();
-                    ClassifiedConverter<?, ?> converter = getAssembleConverter(fieldMapping, value, propertyType);
-                    Object convertedValue = convertValueOnAssembling(value, propertyType, converter);
+                    ClassifiedConverter<?, ?> converter = getAssembleConverter(propertyMeta.getFieldMapping().orNull(),
+                            value, propertyType);
+                    Object convertedValue = convertValueOnAssembling(value, propertyMeta.getFieldGenericType(), converter);
                     PropertyUtils.setProperty(targetPropertyDescriptor, targetObject, convertedValue);
                 }
             }
@@ -104,6 +125,10 @@ public class AutoAssembler {
      * @return 源对象
      */
     public <S, T> S disassemble(T targetObject, Class<S> sourceClass) {
+        ClassifiedConverter<T, S> scalaConverter = converterMapping.find((Class<T>) targetObject.getClass(), sourceClass);
+        if (scalaConverter != null) {
+            return scalaConverter.convert(targetObject, sourceClass);
+        }
         S sourceObject = ReflectionUtils.newInstance(sourceClass);
         disassembleFromTarget(targetObject, sourceObject);
         return sourceObject;
@@ -121,17 +146,24 @@ public class AutoAssembler {
             Method readMethod = targetPropertyDescriptor.getReadMethod();
             if (readMethod != null) {
                 String propertyName = targetPropertyDescriptor.getName();
-                FieldMapping fieldMapping = getFieldMapping(propertyName, readMethod);
-                Object value = disassembleReadHandler.read(fieldMapping, targetObject, propertyName);
+                if (CLASS.equals(propertyName)) {
+                    // 每个对象都有一个class属性，不处理
+                    continue;
+                }
+
+                PropertyMeta propertyMeta = getPropertyMeta(propertyName, readMethod);
+                Object value = disassembleReadHandler.read(propertyMeta.getFieldMapping().orNull(), targetObject, propertyName);
                 if (value != null) {
                     PropertyFindResult propertyFindResult = disassemblePropertyFinder.findPropertyDescriptor(
-                            sourceObject, propertyName, fieldMapping);
+                            sourceObject, propertyName, propertyMeta.getFieldMapping().orNull());
                     if (propertyFindResult != null) {
                         PropertyDescriptor propertyDescriptor = propertyFindResult.getPropertyDescriptor();
                         Class<?> propertyType = propertyDescriptor.getPropertyType();
                         Class<?> targetPropertyType = targetPropertyDescriptor.getPropertyType();
-                        ClassifiedConverter<?, ?> converter = getDisassembleConverter(fieldMapping, value, propertyType);
-                        Object convertedValue = convertValueOnDisassembling(value, targetPropertyType, propertyType, converter);
+                        ClassifiedConverter<?, ?> converter = getDisassembleConverter(propertyMeta.getFieldMapping().orNull(),
+                                value, propertyType);
+                        Object convertedValue = convertValueOnDisassembling(value, targetPropertyType,
+                                propertyFindResult.getFieldGenericType(), converter);
                         PropertyUtils.setProperty(propertyDescriptor, propertyFindResult.getOwnObject(), convertedValue);
                     }
                 }
@@ -139,12 +171,7 @@ public class AutoAssembler {
         }
     }
 
-    private FieldMapping getFieldMapping(String propertyName, Method accessorMethod) {
-        if (CLASS.equals(propertyName)) {
-            // 每个对象都有一个class属性，不处理
-            return null;
-        }
-
+    private PropertyMeta getPropertyMeta(String propertyName, Method accessorMethod) {
         Field declaredField;
         try {
             declaredField = accessorMethod.getDeclaringClass().getDeclaredField(propertyName);
@@ -153,7 +180,9 @@ public class AutoAssembler {
                     + accessorMethod.getDeclaringClass().getSimpleName() + "> failed", e);
         }
 
-        return declaredField.getAnnotation(FieldMapping.class);
+        Type genericType = declaredField.getGenericType();
+        FieldMapping fieldMapping = declaredField.getAnnotation(FieldMapping.class);
+        return new PropertyMeta(genericType, fieldMapping);
     }
 
     private ClassifiedConverter<?, ?> getAssembleConverter(FieldMapping fieldMapping, Object value, Class<?> propertyType) {
@@ -181,18 +210,25 @@ public class AutoAssembler {
     /**
      * 在assemble中进行字段转换
      *
-     * @param originalValue      转换前字段值
-     * @param targetPropertyType 目标类型
-     * @param converter          类型不兼容时使用的converter
+     * @param originalValue          转换前字段值
+     * @param targetFieldGenericType 目标字段Type
+     * @param converter              类型不兼容时使用的converter
      * @return 转换后字段值
      */
     private Object convertValueOnAssembling(Object originalValue,
-                                            Class<?> targetPropertyType,
+                                            Type targetFieldGenericType,
                                             ClassifiedConverter converter) {
         Object value = stripOptionalValue(originalValue);
         if (value == null) {
             return null;
         }
+
+        if (targetFieldGenericType instanceof ParameterizedType) {
+            return convertGenericTypeField(originalValue, targetFieldGenericType, false);
+        }
+
+        // 非参数化字段的，视为普通字段，其他Type暂不支持
+        Class<?> targetPropertyType = (Class<?>) targetFieldGenericType;
 
         if (targetPropertyType.isInstance(value)) {
             return value;
@@ -223,23 +259,65 @@ public class AutoAssembler {
                 + " to " + targetPropertyType.getSimpleName());
     }
 
+    private Object convertGenericTypeField(Object originalValue, Type expectedFieldGenericType, boolean reverse) {
+        // 源字段、目标字段都是泛型集合，进行集合转换
+        ParameterizedType parameterizedType = (ParameterizedType) expectedFieldGenericType;
+        if (originalValue instanceof List
+                && parameterizedType.getRawType() instanceof Class
+                && List.class.isAssignableFrom((Class<?>) parameterizedType.getRawType())) {
+            // NOTICE: 暂时只支持List，扩展需要重构
+
+            List originalList = (List) originalValue;
+            if (originalList.isEmpty()) {
+                return Lists.newArrayList();
+            }
+
+            Preconditions.checkArgument(parameterizedType.getActualTypeArguments().length == 1,
+                    "Type argument of List must be 1");
+
+            Class<?> originalClass = originalList.get(0).getClass();
+            Class<?> expectedClass = (Class<?>) parameterizedType.getActualTypeArguments()[0];
+
+            if (expectedClass.isAssignableFrom(originalClass)) {
+                return originalList;
+            }
+
+            Converter<?, ?> converterForElement;
+            if (reverse) {
+                converterForElement = getConverterFor(expectedClass, originalClass).reverse();
+            } else {
+                converterForElement = getConverterFor(originalClass, expectedClass);
+            }
+            return Lists.newArrayList(Lists.transform((List) originalValue, converterForElement));
+        }
+        // 暂不支持的抛出异常
+        throw new IllegalArgumentException("Non-collection generic type fields not supported: " + expectedFieldGenericType);
+    }
+
     /**
      * 在disassemble中进行字段转换
      *
-     * @param originalValue        转换前字段值
-     * @param targetPropertyType   目标类型，即入参类型
-     * @param expectedPropertyType 返回值类型
-     * @param converter            类型不兼容时使用的converter
+     * @param originalValue            转换前字段值
+     * @param targetPropertyType       目标类型，即入参类型
+     * @param expectedFieldGenericType 期望返回的字段type
+     * @param converter                类型不兼容时使用的converter
      * @return 转换后字段值
      */
     private Object convertValueOnDisassembling(Object originalValue,
                                                Class<?> targetPropertyType,
-                                               Class<?> expectedPropertyType,
+                                               Type expectedFieldGenericType,
                                                ClassifiedConverter converter) {
         Object value = stripOptionalValue(originalValue);
         if (value == null) {
             return null;
         }
+
+        if (expectedFieldGenericType instanceof ParameterizedType) {
+            return convertGenericTypeField(originalValue, expectedFieldGenericType, true);
+        }
+
+        // 非参数化字段的，视为普通字段，其他Type暂不支持
+        Class<?> expectedPropertyType = (Class<?>) expectedFieldGenericType;
 
         if (expectedPropertyType.isInstance(value)) {
             return value;

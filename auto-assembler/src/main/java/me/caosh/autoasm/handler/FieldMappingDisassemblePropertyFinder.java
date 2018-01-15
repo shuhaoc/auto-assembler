@@ -1,11 +1,15 @@
 package me.caosh.autoasm.handler;
 
+import com.google.common.base.MoreObjects;
 import me.caosh.autoasm.FieldMapping;
 import me.caosh.autoasm.util.PropertyFindResult;
 import me.caosh.autoasm.util.PropertyUtils;
 import org.springframework.beans.BeanUtils;
 
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.Scanner;
 
 /**
@@ -42,7 +46,14 @@ public class FieldMappingDisassemblePropertyFinder implements PropertyFinder {
                 PropertyDescriptor propertyDescriptor = BeanUtils.getPropertyDescriptor(currentProperty.getClass(),
                         partialPropertyName);
                 if (propertyDescriptor != null) {
-                    return new PropertyFindResult(currentProperty, propertyDescriptor);
+                    Type fieldGenericType = null;
+                    try {
+                        Field declaredField = getDeclaredField(propertyDescriptor);
+                        fieldGenericType = declaredField.getGenericType();
+                    } catch (NoSuchFieldException e) {
+                        fieldGenericType = propertyDescriptor.getPropertyType();
+                    }
+                    return new PropertyFindResult(currentProperty, propertyDescriptor, fieldGenericType);
                 }
             } else {
                 nextProperty = PropertyUtils.getPropertySoftly(currentProperty, partialPropertyName);
@@ -52,5 +63,12 @@ public class FieldMappingDisassemblePropertyFinder implements PropertyFinder {
             }
         }
         return null;
+    }
+
+    private static Field getDeclaredField(PropertyDescriptor propertyDescriptor) throws NoSuchFieldException {
+        String propertyName = propertyDescriptor.getName();
+        Method accessorMethod = MoreObjects.firstNonNull(propertyDescriptor.getWriteMethod(),
+                propertyDescriptor.getReadMethod());
+        return accessorMethod.getDeclaringClass().getDeclaredField(propertyName);
     }
 }

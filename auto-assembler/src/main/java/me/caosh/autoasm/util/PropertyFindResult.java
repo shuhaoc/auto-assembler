@@ -4,6 +4,7 @@ import com.google.common.base.MoreObjects;
 import me.caosh.autoasm.handler.PropertyFinder;
 
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Type;
 
 /**
  * {@link PropertyFinder}的查找结果
@@ -14,10 +15,12 @@ import java.beans.PropertyDescriptor;
 public class PropertyFindResult {
     private final Object ownObject;
     private final PropertyDescriptor propertyDescriptor;
+    private final Type fieldGenericType;
 
-    public PropertyFindResult(Object ownObject, PropertyDescriptor propertyDescriptor) {
+    public PropertyFindResult(Object ownObject, PropertyDescriptor propertyDescriptor, Type fieldGenericType) {
         this.ownObject = ownObject;
         this.propertyDescriptor = propertyDescriptor;
+        this.fieldGenericType = fieldGenericType;
     }
 
     public Object getOwnObject() {
@@ -28,11 +31,16 @@ public class PropertyFindResult {
         return propertyDescriptor;
     }
 
+    public Type getFieldGenericType() {
+        return fieldGenericType;
+    }
+
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper(PropertyFindResult.class)
+        return MoreObjects.toStringHelper(PropertyFindResult.class).omitNullValues()
                 .add("ownObject", ownObject)
                 .add("propertyDescriptor", propertyDescriptor)
+                .add("fieldGenericType", fieldGenericType)
                 .toString();
     }
 }
