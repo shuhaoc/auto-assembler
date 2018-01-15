@@ -22,6 +22,32 @@ public class CollectionTest {
     private List<String> testStringList;
 
     @Test
+    public void testAssembleList() throws Exception {
+        List<TestSecurityInfo> securityInfoList = Lists.newArrayList(
+                new TestSecurityInfo("600000", "PFYH"),
+                new TestSecurityInfo("000001", "PAYH")
+        );
+
+        List<TestSecurityInfoDTO> assembleList = autoAssembler.assembleList(securityInfoList, TestSecurityInfoDTO.class);
+        assertEquals(assembleList, Lists.newArrayList(
+                new TestSecurityInfoDTO("600000", "PFYH"),
+                new TestSecurityInfoDTO("000001", "PAYH")
+        ));
+
+        List<TestSecurityInfo> disassembleList = autoAssembler.disassembleList(assembleList, TestSecurityInfo.class);
+        assertEquals(disassembleList, securityInfoList);
+    }
+
+    @Test
+    public void testAssembleEmptyList() throws Exception {
+        List<TestSecurityInfoDTO> assembleList = autoAssembler.assembleList(Lists.newArrayList(), TestSecurityInfoDTO.class);
+        assertTrue(assembleList.isEmpty());
+
+        List<TestSecurityInfo> disassembleList = autoAssembler.disassembleList(Lists.newArrayList(), TestSecurityInfo.class);
+        assertTrue(disassembleList.isEmpty());
+    }
+
+    @Test
     public void testGenericTypeParameter() throws Exception {
         testStringList = Lists.newArrayList();
 

@@ -3,6 +3,7 @@ package me.caosh.autoasm;
 import com.google.common.base.Converter;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import me.caosh.autoasm.converter.ClassifiedConverter;
 import me.caosh.autoasm.converter.ConverterMapping;
@@ -25,6 +26,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -86,6 +88,15 @@ public class AutoAssembler {
         return targetBuilder.build();
     }
 
+    public <S, T> List<T> assembleList(Iterable<S> sourceList, Class<T> targetElementClass) {
+        if (Iterables.isEmpty(sourceList)) {
+            return Collections.emptyList();
+        }
+        Class<S> sourceElementClass = (Class<S>) sourceList.iterator().next().getClass();
+        Converter<S, T> converter = getConverterFor(sourceElementClass, targetElementClass);
+        return Lists.newArrayList(Iterables.transform(sourceList, converter));
+    }
+
     private void assembleToTarget(Object sourceObject, Object targetObject) {
         Class<?> targetClass = targetObject.getClass();
         PropertyDescriptor[] targetPropertyDescriptors = BeanUtils.getPropertyDescriptors(targetClass);
@@ -142,6 +153,15 @@ public class AutoAssembler {
     public <S, T> S disassemble(T targetObject, ConvertibleBuilder<S> sourceBuilder) {
         disassembleFromTarget(targetObject, sourceBuilder);
         return sourceBuilder.build();
+    }
+
+    public <S, T> List<S> disassembleList(Iterable<T> targetList, Class<S> sourceElementClass) {
+        if (Iterables.isEmpty(targetList)) {
+            return Collections.emptyList();
+        }
+        Class<T> targetElementClass = (Class<T>) targetList.iterator().getClass();
+        Converter<T, S> converter = getConverterFor(sourceElementClass, targetElementClass).reverse();
+        return Lists.newArrayList(Iterables.transform(targetList, converter));
     }
 
     private void disassembleFromTarget(Object targetObject, Object sourceObject) {
@@ -280,7 +300,7 @@ public class AutoAssembler {
 
             List originalList = (List) originalValue;
             if (originalList.isEmpty()) {
-                return Lists.newArrayList();
+                return Collections.emptyList();
             }
 
             Preconditions.checkArgument(parameterizedType.getActualTypeArguments().length == 1,
