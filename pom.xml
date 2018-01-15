@@ -8,6 +8,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>auto-assembler-api</module>
         <module>auto-assembler</module>
     </modules>
 
@@ -35,6 +36,11 @@
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
                 <version>2.9.9</version>
+            </dependency>
+            <dependency>
+                <groupId>me.caosh</groupId>
+                <artifactId>auto-assembler-api</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.testng</groupId>

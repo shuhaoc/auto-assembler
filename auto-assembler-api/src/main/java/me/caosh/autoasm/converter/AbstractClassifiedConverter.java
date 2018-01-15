@@ -1,7 +1,5 @@
 package me.caosh.autoasm.converter;
 
-import com.google.common.base.Preconditions;
-
 /**
  * @author shuhaoc@qq.com
  * @date 2018/1/14
@@ -22,7 +20,7 @@ public abstract class AbstractClassifiedConverter<S, T> implements ClassifiedCon
         if (value == null) {
             return null;
         }
-        return Preconditions.checkNotNull(doForward(value, returnClass));
+        return doForward(value, returnClass);
     }
 
     @Override
