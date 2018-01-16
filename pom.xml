@@ -65,6 +65,26 @@
                     <showDeprecation>true</showDeprecation>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.5.3</version>
+                <configuration>
+                    <tagNameFormat>v@{project.version}</tagNameFormat>
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                    <useReleaseProfile>false</useReleaseProfile>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
+    <scm>
+        <developerConnection>scm:git:https://github.com/shuhaoc/auto-assembler</developerConnection>
+    </scm>
+    <contributors>
+        <contributor>
+            <name>caosh</name>
+            <email>shuhaoc@qq.com</email>
+            <url>http://www.caosh.me</url>
+        </contributor>
+    </contributors>
 </project>
