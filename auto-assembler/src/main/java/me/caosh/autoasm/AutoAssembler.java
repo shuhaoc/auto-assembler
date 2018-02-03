@@ -99,12 +99,13 @@ public class AutoAssembler {
             Method writeMethod = targetPropertyDescriptor.getWriteMethod();
             if (writeMethod != null) {
                 String propertyName = targetPropertyDescriptor.getName();
+                Class<?> propertyType = targetPropertyDescriptor.getPropertyType();
                 if (CLASS.equals(propertyName)) {
                     // 每个对象都有一个class属性，不处理
                     continue;
                 }
 
-                PropertyMeta propertyMeta = getPropertyMeta(propertyName, writeMethod);
+                PropertyMeta propertyMeta = getPropertyMeta(propertyName, writeMethod, propertyType);
                 if (propertyMeta.getSkippedField().isPresent()) {
                     // 配置为跳过的字段不处理
                     continue;
@@ -112,7 +113,6 @@ public class AutoAssembler {
 
                 Object value = assembleReadHandler.read(propertyMeta.getFieldMapping().orNull(), sourceObject, propertyName);
                 if (value != null) {
-                    Class<?> propertyType = targetPropertyDescriptor.getPropertyType();
                     ClassifiedConverter<?, ?> converter = getAssembleConverter(propertyMeta.getFieldMapping().orNull(),
                             value, propertyType);
                     Object convertedValue = convertValueOnAssembling(value, propertyMeta.getFieldGenericType(), converter);
@@ -166,12 +166,13 @@ public class AutoAssembler {
             Method readMethod = targetPropertyDescriptor.getReadMethod();
             if (readMethod != null) {
                 String propertyName = targetPropertyDescriptor.getName();
+                Class<?> targetPropertyType = targetPropertyDescriptor.getPropertyType();
                 if (CLASS.equals(propertyName)) {
                     // 每个对象都有一个class属性，不处理
                     continue;
                 }
 
-                PropertyMeta propertyMeta = getPropertyMeta(propertyName, readMethod);
+                PropertyMeta propertyMeta = getPropertyMeta(propertyName, readMethod, targetPropertyType);
                 if (propertyMeta.getSkippedField().isPresent()) {
                     // 配置为跳过的字段不处理
                     continue;
@@ -184,7 +185,6 @@ public class AutoAssembler {
                     if (propertyFindResult != null) {
                         PropertyDescriptor propertyDescriptor = propertyFindResult.getPropertyDescriptor();
                         Class<?> propertyType = propertyDescriptor.getPropertyType();
-                        Class<?> targetPropertyType = targetPropertyDescriptor.getPropertyType();
                         ClassifiedConverter<?, ?> converter = getDisassembleConverter(propertyMeta.getFieldMapping().orNull(),
                                 value, propertyType);
                         Object convertedValue = convertValueOnDisassembling(value, targetPropertyType,
@@ -196,19 +196,18 @@ public class AutoAssembler {
         }
     }
 
-    private PropertyMeta getPropertyMeta(String propertyName, Method accessorMethod) {
-        Field declaredField;
+    private PropertyMeta getPropertyMeta(String propertyName, Method accessorMethod, Class<?> propertyType) {
         try {
-            declaredField = accessorMethod.getDeclaringClass().getDeclaredField(propertyName);
-        } catch (NoSuchFieldException e) {
-            throw new IllegalArgumentException("Get declared field (" + propertyName + ") from property declaring class <"
-                    + accessorMethod.getDeclaringClass().getSimpleName() + "> failed", e);
-        }
+            Field declaredField = accessorMethod.getDeclaringClass().getDeclaredField(propertyName);
 
-        Type genericType = declaredField.getGenericType();
-        FieldMapping fieldMapping = declaredField.getAnnotation(FieldMapping.class);
-        SkippedField skippedField = declaredField.getAnnotation(SkippedField.class);
-        return new PropertyMeta(genericType, fieldMapping, skippedField);
+            Type genericType = declaredField.getGenericType();
+            FieldMapping fieldMapping = declaredField.getAnnotation(FieldMapping.class);
+            SkippedField skippedField = declaredField.getAnnotation(SkippedField.class);
+            return new PropertyMeta(genericType, fieldMapping, skippedField);
+        } catch (NoSuchFieldException e) {
+            // 找不到accessorMethod同名的field，仍然兼容，视为无注解配置
+            return new PropertyMeta(propertyType, null, null);
+        }
     }
 
     private ClassifiedConverter<?, ?> getAssembleConverter(FieldMapping fieldMapping, Object value, Class<?> propertyType) {

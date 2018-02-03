@@ -58,12 +58,6 @@ public class ExceptionTest {
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class,
-            expectedExceptionsMessageRegExp = "Get declared field \\(mockField\\) from property declaring class <TestGetFieldFailedDTO> failed")
-    public void testGetFieldFailed() throws Exception {
-        autoAssembler.assemble(new Object(), TestGetFieldFailedDTO.class);
-    }
-
-    @Test(expectedExceptions = IllegalArgumentException.class,
             expectedExceptionsMessageRegExp = "Runtime type subclass should be annotated with @MappedClass")
     public void testNoMappedClass() throws Exception {
         TestNoMappedClassObject testNoMappedClassObject = new TestNoMappedClassObject();
