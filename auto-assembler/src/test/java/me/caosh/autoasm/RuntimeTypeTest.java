@@ -4,6 +4,7 @@ import com.google.common.base.MoreObjects;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
 
 /**
  * @author shuhaoc@qq.com
@@ -40,6 +41,15 @@ public class RuntimeTypeTest {
 
         TestConditionOrder disassemble = autoAssembler.disassemble(assemble, TestConditionOrder.class);
         assertEquals(disassemble, assemble);
+    }
+
+    @Test
+    public void testNoPojoType() throws Exception {
+        TestConditionOrder testConditionOrder = new TestConditionOrder();
+        testConditionOrder.setExternalProperties(new SecondExternalProperties());
+
+        TestConditionOrderDTO assemble = autoAssembler.assemble(testConditionOrder, TestConditionOrderDTO.class);
+        assertNull(assemble.getExternalProperties());
     }
 
     public static class TestConditionOrder {
@@ -109,6 +119,25 @@ public class RuntimeTypeTest {
         public String toString() {
             return MoreObjects.toStringHelper(FirstExternalProperties.class)
                     .add("x", x)
+                    .toString();
+        }
+    }
+
+    public static class SecondExternalProperties implements ExternalProperties {
+        private Integer y;
+
+        public Integer getY() {
+            return y;
+        }
+
+        public void setY(Integer y) {
+            this.y = y;
+        }
+
+        @Override
+        public String toString() {
+            return MoreObjects.toStringHelper(SecondExternalProperties.class).omitNullValues()
+                    .add("y", y)
                     .toString();
         }
     }

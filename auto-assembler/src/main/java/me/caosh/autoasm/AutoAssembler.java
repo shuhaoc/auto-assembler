@@ -9,13 +9,7 @@ import me.caosh.autoasm.converter.ClassifiedConverter;
 import me.caosh.autoasm.converter.ConverterMapping;
 import me.caosh.autoasm.converter.DefaultConverterMapping;
 import me.caosh.autoasm.converter.NotConfiguredClassifiedConverter;
-import me.caosh.autoasm.handler.FieldMappingAssembleReadHandler;
-import me.caosh.autoasm.handler.FieldMappingDisassemblePropertyFinder;
-import me.caosh.autoasm.handler.FieldMappingDisassembleReadHandler;
-import me.caosh.autoasm.handler.PropertyFinder;
-import me.caosh.autoasm.handler.ReadHandler;
-import me.caosh.autoasm.handler.ReadHandlerChain;
-import me.caosh.autoasm.handler.ReflectionReadHandler;
+import me.caosh.autoasm.handler.*;
 import me.caosh.autoasm.util.AssemblerWithBuilder;
 import me.caosh.autoasm.util.PropertyFindResult;
 import me.caosh.autoasm.util.PropertyUtils;
@@ -286,6 +280,7 @@ public class AutoAssembler {
                     return assemble(value, subClass);
                 }
             }
+            return null;
         }
         throw new IllegalArgumentException("Type mismatch and cannot convert: " + value.getClass().getSimpleName()
                 + " to " + targetPropertyType.getSimpleName());
