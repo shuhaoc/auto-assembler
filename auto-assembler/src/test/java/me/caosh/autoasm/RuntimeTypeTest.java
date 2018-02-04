@@ -3,8 +3,7 @@ package me.caosh.autoasm;
 import com.google.common.base.MoreObjects;
 import org.testng.annotations.Test;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNull;
+import static org.testng.Assert.*;
 
 /**
  * @author shuhaoc@qq.com
@@ -56,6 +55,20 @@ public class RuntimeTypeTest {
 
         TestConditionOrder disassemble = autoAssembler.disassemble(testConditionOrderDTO, TestConditionOrder.class);
         assertNull(disassemble.getExternalProperties());
+    }
+
+    @Test
+    public void testRuntimeTypeTarget() throws Exception {
+        FirstExternalProperties externalProperties = new FirstExternalProperties();
+        externalProperties.setX(123);
+
+        ExternalPropertiesDTO assemble = autoAssembler.assemble(externalProperties, ExternalPropertiesDTO.class);
+        assertTrue(assemble instanceof FirstExternalPropertiesDTO);
+        assertEquals(((FirstExternalPropertiesDTO) assemble).getX(), externalProperties.getX());
+
+        ExternalProperties disassemble = autoAssembler.disassemble(assemble, ExternalProperties.class);
+        assertTrue(disassemble instanceof FirstExternalProperties);
+        assertEquals(disassemble, externalProperties);
     }
 
     public static class TestConditionOrder {

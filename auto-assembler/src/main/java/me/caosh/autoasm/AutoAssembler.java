@@ -5,6 +5,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import me.caosh.autoasm.builder.NotConfiguredConvertibleBuilder;
 import me.caosh.autoasm.converter.ClassifiedConverter;
 import me.caosh.autoasm.converter.ConverterMapping;
 import me.caosh.autoasm.converter.DefaultConverterMapping;
@@ -73,6 +74,10 @@ public class AutoAssembler {
         if (scalaConverter != null) {
             return scalaConverter.convert(sourceObject, targetClass);
         }
+        RuntimeType runtimeType = targetClass.getAnnotation(RuntimeType.class);
+        if (runtimeType != null) {
+            return (T) convertValueOnAssembling(sourceObject, targetClass, null);
+        }
         T targetObject = ReflectionUtils.newInstance(targetClass);
         assembleToTarget(sourceObject, targetObject);
         return targetObject;
@@ -136,9 +141,14 @@ public class AutoAssembler {
      * @return 源对象
      */
     public <S, T> S disassemble(T targetObject, Class<S> sourceClass) {
-        ClassifiedConverter<T, S> scalaConverter = converterMapping.find((Class<T>) targetObject.getClass(), sourceClass);
+        Class<T> targetClass = (Class<T>) targetObject.getClass();
+        ClassifiedConverter<T, S> scalaConverter = converterMapping.find(targetClass, sourceClass);
         if (scalaConverter != null) {
             return scalaConverter.convert(targetObject, sourceClass);
+        }
+        MappedClass mappedClass = targetClass.getAnnotation(MappedClass.class);
+        if (mappedClass != null) {
+            return disassembleToMappedClass(targetObject, mappedClass);
         }
         S sourceObject = ReflectionUtils.newInstance(sourceClass);
         disassembleFromTarget(targetObject, sourceObject);
@@ -157,6 +167,23 @@ public class AutoAssembler {
         Class<T> targetElementClass = (Class<T>) targetList.iterator().getClass();
         Converter<T, S> converter = getConverterFor(sourceElementClass, targetElementClass).reverse();
         return Lists.newArrayList(Iterables.transform(targetList, converter));
+    }
+
+    private <S, T> S disassembleToMappedClass(T targetObject, MappedClass mappedClass) {
+        Class<? extends ConvertibleBuilder> builderClass = mappedClass.builderClass();
+        if (builderClass != NotConfiguredConvertibleBuilder.class) {
+            ConvertibleBuilder sourceBuilder = null;
+            try {
+                sourceBuilder = builderClass.newInstance();
+            } catch (InstantiationException | IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+            disassembleFromTarget(targetObject, sourceBuilder);
+            return (S) sourceBuilder.build();
+        }
+        S sourceObject = (S) ReflectionUtils.newInstance(mappedClass.value());
+        disassembleFromTarget(targetObject, sourceObject);
+        return sourceObject;
     }
 
     private void disassembleFromTarget(Object targetObject, Object sourceObject) {
@@ -357,6 +384,12 @@ public class AutoAssembler {
         if (convertible != null) {
             return disassemble(value, expectedPropertyType);
         }
+
+        MappedClass targetMappedClass = targetPropertyType.getAnnotation(MappedClass.class);
+        if (targetMappedClass != null) {
+            return disassemble(value, targetMappedClass.value());
+        }
+
         RuntimeType runtimeType = targetPropertyType.getAnnotation(RuntimeType.class);
         if (runtimeType != null) {
             Class<?>[] subClasses = runtimeType.value();
