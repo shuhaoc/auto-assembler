@@ -50,6 +50,12 @@ public class RuntimeTypeTest {
 
         TestConditionOrderDTO assemble = autoAssembler.assemble(testConditionOrder, TestConditionOrderDTO.class);
         assertNull(assemble.getExternalProperties());
+
+        TestConditionOrderDTO testConditionOrderDTO = new TestConditionOrderDTO();
+        testConditionOrderDTO.setExternalProperties(new ThirdExternalPropertiesDTO());
+
+        TestConditionOrder disassemble = autoAssembler.disassemble(testConditionOrderDTO, TestConditionOrder.class);
+        assertNull(disassemble.getExternalProperties());
     }
 
     public static class TestConditionOrder {
@@ -176,7 +182,9 @@ public class RuntimeTypeTest {
         }
     }
 
-    @RuntimeType({FirstExternalPropertiesDTO.class})
+    @RuntimeType({
+            FirstExternalPropertiesDTO.class
+    })
     public interface ExternalPropertiesDTO {
     }
 
@@ -211,6 +219,40 @@ public class RuntimeTypeTest {
         public String toString() {
             return MoreObjects.toStringHelper(FirstExternalPropertiesDTO.class)
                     .add("x", x)
+                    .toString();
+        }
+    }
+
+    public static class ThirdExternalPropertiesDTO implements ExternalPropertiesDTO {
+        private Integer z;
+
+        public Integer getZ() {
+            return z;
+        }
+
+        public void setZ(Integer z) {
+            this.z = z;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            ThirdExternalPropertiesDTO that = (ThirdExternalPropertiesDTO) o;
+
+            return z != null ? z.equals(that.z) : that.z == null;
+        }
+
+        @Override
+        public int hashCode() {
+            return z != null ? z.hashCode() : 0;
+        }
+
+        @Override
+        public String toString() {
+            return MoreObjects.toStringHelper(ThirdExternalPropertiesDTO.class).omitNullValues()
+                    .add("z", z)
                     .toString();
         }
     }

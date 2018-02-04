@@ -369,6 +369,7 @@ public class AutoAssembler {
                     return disassemble(value, mappedClass.value());
                 }
             }
+            return null;
         }
         throw new IllegalArgumentException("Type mismatch and cannot convert: " + value.getClass().getSimpleName()
                 + " to " + expectedPropertyType.getSimpleName());
