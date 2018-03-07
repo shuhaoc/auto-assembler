@@ -125,6 +125,28 @@ public class ConvertTest {
         assertEquals(getterInvokeResult, testConvertObject.getPrimitiveInt());
     }
 
+    @Test
+    public void testBigDecimal() throws Exception {
+        TestConvertObject testConvertObject = new TestConvertObject();
+        testConvertObject.setBigDecimal2Int(new BigDecimal("123"));
+        testConvertObject.setBigDecimal2Long(new BigDecimal("1234"));
+        testConvertObject.setBigDecimal2Float(new BigDecimal("12.3"));
+        testConvertObject.setBigDecimal2Double(new BigDecimal("12.34"));
+
+        TestConvertDTO testConvertDTO = autoAssembler.assemble(testConvertObject, TestConvertDTO.class);
+        assertEquals(testConvertDTO.getBigDecimal2Int().intValue(), 123);
+        assertEquals(testConvertDTO.getBigDecimal2Long().longValue(), 1234L);
+        assertEquals(testConvertDTO.getBigDecimal2Float(), 12.3F, 0.000001);
+        assertEquals(testConvertDTO.getBigDecimal2Double(), 12.34D, 0.00000001);
+
+        TestConvertObject disassemble = autoAssembler.disassemble(testConvertDTO, TestConvertObject.class);
+
+        assertEquals(disassemble.getBigDecimal2Int(), testConvertObject.getBigDecimal2Int());
+        assertEquals(disassemble.getBigDecimal2Long(), testConvertObject.getBigDecimal2Long());
+        assertEquals(disassemble.getBigDecimal2Float().floatValue(), 12.3F, 0.000001);
+        assertEquals(disassemble.getBigDecimal2Double().doubleValue(), 12.34D, 0.00000001);
+    }
+
     public static class TestConvertObject {
         private Integer int2String;
         private String str2Int;
@@ -135,6 +157,10 @@ public class ConvertTest {
         private TestEnum testEnum2Int;
         private Integer int2TestEnum;
         private int primitiveInt;
+        private BigDecimal bigDecimal2Int;
+        private BigDecimal bigDecimal2Long;
+        private BigDecimal bigDecimal2Float;
+        private BigDecimal bigDecimal2Double;
 
         public Integer getInt2String() {
             return int2String;
@@ -208,6 +234,38 @@ public class ConvertTest {
             this.primitiveInt = primitiveInt;
         }
 
+        public BigDecimal getBigDecimal2Int() {
+            return bigDecimal2Int;
+        }
+
+        public void setBigDecimal2Int(BigDecimal bigDecimal2Int) {
+            this.bigDecimal2Int = bigDecimal2Int;
+        }
+
+        public BigDecimal getBigDecimal2Long() {
+            return bigDecimal2Long;
+        }
+
+        public void setBigDecimal2Long(BigDecimal bigDecimal2Long) {
+            this.bigDecimal2Long = bigDecimal2Long;
+        }
+
+        public BigDecimal getBigDecimal2Float() {
+            return bigDecimal2Float;
+        }
+
+        public void setBigDecimal2Float(BigDecimal bigDecimal2Float) {
+            this.bigDecimal2Float = bigDecimal2Float;
+        }
+
+        public BigDecimal getBigDecimal2Double() {
+            return bigDecimal2Double;
+        }
+
+        public void setBigDecimal2Double(BigDecimal bigDecimal2Double) {
+            this.bigDecimal2Double = bigDecimal2Double;
+        }
+
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
@@ -224,7 +282,15 @@ public class ConvertTest {
             if (str2BigDecimal != null ? !str2BigDecimal.equals(that.str2BigDecimal) : that.str2BigDecimal != null)
                 return false;
             if (testEnum2Int != that.testEnum2Int) return false;
-            return int2TestEnum != null ? int2TestEnum.equals(that.int2TestEnum) : that.int2TestEnum == null;
+            if (int2TestEnum != null ? !int2TestEnum.equals(that.int2TestEnum) : that.int2TestEnum != null)
+                return false;
+            if (bigDecimal2Int != null ? !bigDecimal2Int.equals(that.bigDecimal2Int) : that.bigDecimal2Int != null)
+                return false;
+            if (bigDecimal2Long != null ? !bigDecimal2Long.equals(that.bigDecimal2Long) : that.bigDecimal2Long != null)
+                return false;
+            if (bigDecimal2Float != null ? !bigDecimal2Float.equals(that.bigDecimal2Float) : that.bigDecimal2Float != null)
+                return false;
+            return bigDecimal2Double != null ? bigDecimal2Double.equals(that.bigDecimal2Double) : that.bigDecimal2Double == null;
         }
 
         @Override
@@ -238,6 +304,10 @@ public class ConvertTest {
             result = 31 * result + (testEnum2Int != null ? testEnum2Int.hashCode() : 0);
             result = 31 * result + (int2TestEnum != null ? int2TestEnum.hashCode() : 0);
             result = 31 * result + primitiveInt;
+            result = 31 * result + (bigDecimal2Int != null ? bigDecimal2Int.hashCode() : 0);
+            result = 31 * result + (bigDecimal2Long != null ? bigDecimal2Long.hashCode() : 0);
+            result = 31 * result + (bigDecimal2Float != null ? bigDecimal2Float.hashCode() : 0);
+            result = 31 * result + (bigDecimal2Double != null ? bigDecimal2Double.hashCode() : 0);
             return result;
         }
 
@@ -253,6 +323,10 @@ public class ConvertTest {
                     .add("testEnum2Int", testEnum2Int)
                     .add("int2TestEnum", int2TestEnum)
                     .add("primitiveInt", primitiveInt)
+                    .add("bigDecimal2Int", bigDecimal2Int)
+                    .add("bigDecimal2Long", bigDecimal2Long)
+                    .add("bigDecimal2Float", bigDecimal2Float)
+                    .add("bigDecimal2Double", bigDecimal2Double)
                     .toString();
         }
     }
@@ -267,6 +341,10 @@ public class ConvertTest {
         private Integer testEnum2Int;
         private TestEnum int2TestEnum;
         private Integer primitiveInt;
+        private Integer bigDecimal2Int;
+        private Long bigDecimal2Long;
+        private Float bigDecimal2Float;
+        private Double bigDecimal2Double;
 
         public String getInt2String() {
             return int2String;
@@ -338,6 +416,38 @@ public class ConvertTest {
 
         public void setPrimitiveInt(Integer primitiveInt) {
             this.primitiveInt = primitiveInt;
+        }
+
+        public Integer getBigDecimal2Int() {
+            return bigDecimal2Int;
+        }
+
+        public void setBigDecimal2Int(Integer bigDecimal2Int) {
+            this.bigDecimal2Int = bigDecimal2Int;
+        }
+
+        public Long getBigDecimal2Long() {
+            return bigDecimal2Long;
+        }
+
+        public void setBigDecimal2Long(Long bigDecimal2Long) {
+            this.bigDecimal2Long = bigDecimal2Long;
+        }
+
+        public Float getBigDecimal2Float() {
+            return bigDecimal2Float;
+        }
+
+        public void setBigDecimal2Float(Float bigDecimal2Float) {
+            this.bigDecimal2Float = bigDecimal2Float;
+        }
+
+        public Double getBigDecimal2Double() {
+            return bigDecimal2Double;
+        }
+
+        public void setBigDecimal2Double(Double bigDecimal2Double) {
+            this.bigDecimal2Double = bigDecimal2Double;
         }
     }
 

@@ -200,8 +200,62 @@ public class CommonConverters {
         };
     }
 
-    private CommonConverters() {
+    public static Converter<BigDecimal, Integer> bigDecimalIntegerConverter() {
+        return new Converter<BigDecimal, Integer>() {
+            @Override
+            protected Integer doForward(BigDecimal bigDecimal) {
+                return bigDecimal.intValue();
+            }
+
+            @Override
+            protected BigDecimal doBackward(Integer integer) {
+                return BigDecimal.valueOf(integer);
+            }
+        };
     }
 
-    private static final CommonConverters CODE_COVERAGE = new CommonConverters();
+    public static Converter<BigDecimal, Long> bigDecimalLongConverter() {
+        return new Converter<BigDecimal, Long>() {
+            @Override
+            protected Long doForward(BigDecimal bigDecimal) {
+                return bigDecimal.longValue();
+            }
+
+            @Override
+            protected BigDecimal doBackward(Long aLong) {
+                return BigDecimal.valueOf(aLong);
+            }
+        };
+    }
+
+    public static Converter<BigDecimal, Float> bigDecimalFloatConverter() {
+        return new Converter<BigDecimal, Float>() {
+            @Override
+            protected Float doForward(BigDecimal bigDecimal) {
+                return bigDecimal.floatValue();
+            }
+
+            @Override
+            protected BigDecimal doBackward(Float aFloat) {
+                return BigDecimal.valueOf(aFloat);
+            }
+        };
+    }
+
+    public static Converter<BigDecimal, Double> bigDecimalDoubleConverter() {
+        return new Converter<BigDecimal, Double>() {
+            @Override
+            protected Double doForward(BigDecimal bigDecimal) {
+                return bigDecimal.doubleValue();
+            }
+
+            @Override
+            protected BigDecimal doBackward(Double aDouble) {
+                return BigDecimal.valueOf(aDouble);
+            }
+        };
+    }
+
+    private CommonConverters() {
+    }
 }
