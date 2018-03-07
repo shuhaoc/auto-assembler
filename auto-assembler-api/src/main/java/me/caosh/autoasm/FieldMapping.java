@@ -31,7 +31,7 @@ public @interface FieldMapping {
     String value() default "";
 
     /**
-     * 默认值，注解的POJO为源对象时，配置该字段在自动装载至目标对象时，如果字段值为null，使用defaultValue表示的值
+     * 默认值，注解的POJO为目标对象，配置该字段在自动反装载至源对象时，如果字段值为null，使用defaultValue表示的值
      *
      * @return 默认值
      */
