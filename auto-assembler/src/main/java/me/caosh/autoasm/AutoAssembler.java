@@ -10,7 +10,13 @@ import me.caosh.autoasm.converter.ClassifiedConverter;
 import me.caosh.autoasm.converter.ConverterMapping;
 import me.caosh.autoasm.converter.DefaultConverterMapping;
 import me.caosh.autoasm.converter.NotConfiguredClassifiedConverter;
-import me.caosh.autoasm.handler.*;
+import me.caosh.autoasm.handler.FieldMappingAssembleReadHandler;
+import me.caosh.autoasm.handler.FieldMappingDisassemblePropertyFinder;
+import me.caosh.autoasm.handler.FieldMappingDisassembleReadHandler;
+import me.caosh.autoasm.handler.PropertyFinder;
+import me.caosh.autoasm.handler.ReadHandler;
+import me.caosh.autoasm.handler.ReadHandlerChain;
+import me.caosh.autoasm.handler.ReflectionReadHandler;
 import me.caosh.autoasm.util.AssemblerWithBuilder;
 import me.caosh.autoasm.util.PropertyFindResult;
 import me.caosh.autoasm.util.PropertyUtils;
@@ -116,7 +122,8 @@ public class AutoAssembler {
                     continue;
                 }
 
-                Object value = assembleReadHandler.read(propertyMeta.getFieldMapping().orNull(), sourceObject, propertyName);
+                Object originalValue = assembleReadHandler.read(propertyMeta.getFieldMapping().orNull(), sourceObject, propertyName);
+                Object value = stripOptionalValue(originalValue);
                 if (value != null) {
                     ClassifiedConverter<?, ?> converter = getAssembleConverter(propertyMeta.getFieldMapping().orNull(),
                             value, propertyType);
@@ -205,7 +212,8 @@ public class AutoAssembler {
                     continue;
                 }
 
-                Object value = disassembleReadHandler.read(propertyMeta.getFieldMapping().orNull(), targetObject, propertyName);
+                Object originalValue = disassembleReadHandler.read(propertyMeta.getFieldMapping().orNull(), targetObject, propertyName);
+                Object value = stripOptionalValue(originalValue);
                 if (value != null) {
                     PropertyFindResult propertyFindResult = disassemblePropertyFinder.findPropertyDescriptor(
                             sourceObject, propertyName, propertyMeta.getFieldMapping().orNull());
@@ -262,21 +270,20 @@ public class AutoAssembler {
     /**
      * 在assemble中进行字段转换
      *
-     * @param originalValue          转换前字段值
+     * @param value                  转换前字段值
      * @param targetFieldGenericType 目标字段Type
      * @param converter              类型不兼容时使用的converter
      * @return 转换后字段值
      */
-    private Object convertValueOnAssembling(Object originalValue,
+    private Object convertValueOnAssembling(Object value,
                                             Type targetFieldGenericType,
                                             ClassifiedConverter converter) {
-        Object value = stripOptionalValue(originalValue);
         if (value == null) {
             return null;
         }
 
         if (targetFieldGenericType instanceof ParameterizedType) {
-            return convertGenericTypeField(originalValue, targetFieldGenericType, false);
+            return convertGenericTypeField(value, targetFieldGenericType, false);
         }
 
         // 非参数化字段的，视为普通字段，其他Type暂不支持
@@ -350,23 +357,22 @@ public class AutoAssembler {
     /**
      * 在disassemble中进行字段转换
      *
-     * @param originalValue            转换前字段值
+     * @param value                    转换前字段值
      * @param targetPropertyType       目标类型，即入参类型
      * @param expectedFieldGenericType 期望返回的字段type
      * @param converter                类型不兼容时使用的converter
      * @return 转换后字段值
      */
-    private Object convertValueOnDisassembling(Object originalValue,
+    private Object convertValueOnDisassembling(Object value,
                                                Class<?> targetPropertyType,
                                                Type expectedFieldGenericType,
                                                ClassifiedConverter converter) {
-        Object value = stripOptionalValue(originalValue);
         if (value == null) {
             return null;
         }
 
         if (expectedFieldGenericType instanceof ParameterizedType) {
-            return convertGenericTypeField(originalValue, expectedFieldGenericType, true);
+            return convertGenericTypeField(value, expectedFieldGenericType, true);
         }
 
         // 非参数化字段的，视为普通字段，其他Type暂不支持
