@@ -1,5 +1,7 @@
 package me.caosh.autoasm;
 
+import me.caosh.autoasm.builder.NotConfiguredConvertibleBuilder;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -21,4 +23,11 @@ public @interface MappedClass {
      * @return 映射类
      */
     Class<?> value();
+
+    /**
+     * 映射类的Builder类
+     *
+     * @return 映射类的Builder类
+     */
+    Class<? extends ConvertibleBuilder> builderClass() default NotConfiguredConvertibleBuilder.class;
 }

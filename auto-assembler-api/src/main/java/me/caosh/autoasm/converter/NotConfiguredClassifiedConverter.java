@@ -1,6 +1,7 @@
 package me.caosh.autoasm.converter;
 
 /**
+ *
  * @author shuhaoc@qq.com
  * @date 2018/1/14
  */
@@ -13,5 +14,8 @@ public class NotConfiguredClassifiedConverter implements ClassifiedConverter {
     @Override
     public ClassifiedConverter reverse() {
         return this;
+    }
+
+    private NotConfiguredClassifiedConverter() {
     }
 }
