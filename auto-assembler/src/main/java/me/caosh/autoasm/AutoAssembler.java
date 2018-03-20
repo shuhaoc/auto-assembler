@@ -33,7 +33,7 @@ import java.util.List;
 
 /**
  * 自动装载器，自动完成domain object与pojo之间或pojo之间的转换
- * {@link AutoAssembler}对象比较重，使用时建议使用单例
+ * {@link AutoAssembler}对象比较重，使用时建议使用单例，比如{@link AutoAssemblers#getDefault()}
  *
  * @author caosh/shuhaoc@qq.com
  * @date 2018/1/10
