@@ -3,7 +3,7 @@ package me.caosh.autoasm;
 import com.google.common.base.MoreObjects;
 import org.testng.annotations.Test;
 
-import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.*;
 
 /**
  * @author shuhaoc@qq.com
@@ -40,6 +40,35 @@ public class RuntimeTypeTest {
 
         TestConditionOrder disassemble = autoAssembler.disassemble(assemble, TestConditionOrder.class);
         assertEquals(disassemble, assemble);
+    }
+
+    @Test
+    public void testNoPojoType() throws Exception {
+        TestConditionOrder testConditionOrder = new TestConditionOrder();
+        testConditionOrder.setExternalProperties(new SecondExternalProperties());
+
+        TestConditionOrderDTO assemble = autoAssembler.assemble(testConditionOrder, TestConditionOrderDTO.class);
+        assertNull(assemble.getExternalProperties());
+
+        TestConditionOrderDTO testConditionOrderDTO = new TestConditionOrderDTO();
+        testConditionOrderDTO.setExternalProperties(new ThirdExternalPropertiesDTO());
+
+        TestConditionOrder disassemble = autoAssembler.disassemble(testConditionOrderDTO, TestConditionOrder.class);
+        assertNull(disassemble.getExternalProperties());
+    }
+
+    @Test
+    public void testRuntimeTypeTarget() throws Exception {
+        FirstExternalProperties externalProperties = new FirstExternalProperties();
+        externalProperties.setX(123);
+
+        ExternalPropertiesDTO assemble = autoAssembler.assemble(externalProperties, ExternalPropertiesDTO.class);
+        assertTrue(assemble instanceof FirstExternalPropertiesDTO);
+        assertEquals(((FirstExternalPropertiesDTO) assemble).getX(), externalProperties.getX());
+
+        ExternalProperties disassemble = autoAssembler.disassemble(assemble, ExternalProperties.class);
+        assertTrue(disassemble instanceof FirstExternalProperties);
+        assertEquals(disassemble, externalProperties);
     }
 
     public static class TestConditionOrder {
@@ -113,6 +142,25 @@ public class RuntimeTypeTest {
         }
     }
 
+    public static class SecondExternalProperties implements ExternalProperties {
+        private Integer y;
+
+        public Integer getY() {
+            return y;
+        }
+
+        public void setY(Integer y) {
+            this.y = y;
+        }
+
+        @Override
+        public String toString() {
+            return MoreObjects.toStringHelper(SecondExternalProperties.class).omitNullValues()
+                    .add("y", y)
+                    .toString();
+        }
+    }
+
     public static class TestConditionOrderDTO {
         private ExternalPropertiesDTO externalProperties;
 
@@ -147,7 +195,9 @@ public class RuntimeTypeTest {
         }
     }
 
-    @RuntimeType({FirstExternalPropertiesDTO.class})
+    @RuntimeType({
+            FirstExternalPropertiesDTO.class
+    })
     public interface ExternalPropertiesDTO {
     }
 
@@ -182,6 +232,40 @@ public class RuntimeTypeTest {
         public String toString() {
             return MoreObjects.toStringHelper(FirstExternalPropertiesDTO.class)
                     .add("x", x)
+                    .toString();
+        }
+    }
+
+    public static class ThirdExternalPropertiesDTO implements ExternalPropertiesDTO {
+        private Integer z;
+
+        public Integer getZ() {
+            return z;
+        }
+
+        public void setZ(Integer z) {
+            this.z = z;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            ThirdExternalPropertiesDTO that = (ThirdExternalPropertiesDTO) o;
+
+            return z != null ? z.equals(that.z) : that.z == null;
+        }
+
+        @Override
+        public int hashCode() {
+            return z != null ? z.hashCode() : 0;
+        }
+
+        @Override
+        public String toString() {
+            return MoreObjects.toStringHelper(ThirdExternalPropertiesDTO.class).omitNullValues()
+                    .add("z", z)
                     .toString();
         }
     }

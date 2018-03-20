@@ -153,6 +153,15 @@ public class BasicTest {
         autoAssembler.disassemble(testDTO, TestBasicObject.class);
     }
 
+
+    @Test
+    public void testGetFieldFailed() throws Exception {
+        TestBasicObject sourceObject = new TestBasicObject();
+        sourceObject.setName("hello");
+        TestGetFieldFailedDTO assemble = autoAssembler.assemble(sourceObject, TestGetFieldFailedDTO.class);
+        assertEquals(assemble.mockField, sourceObject.getName());
+    }
+
     public static class TestBasicObject {
         private Integer id;
         private String name;

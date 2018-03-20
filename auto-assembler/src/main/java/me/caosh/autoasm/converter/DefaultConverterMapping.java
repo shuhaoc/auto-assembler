@@ -43,5 +43,9 @@ public class DefaultConverterMapping extends ConverterMapping {
         register(Long.TYPE, Long.class, CommonConverters.<Long>assignDirectlyConverter());
         register(Float.TYPE, Float.class, CommonConverters.<Float>assignDirectlyConverter());
         register(Double.TYPE, Double.class, CommonConverters.<Double>assignDirectlyConverter());
+        register(BigDecimal.class, Integer.class, CommonConverters.bigDecimalIntegerConverter());
+        register(BigDecimal.class, Long.class, CommonConverters.bigDecimalLongConverter());
+        register(BigDecimal.class, Float.class, CommonConverters.bigDecimalFloatConverter());
+        register(BigDecimal.class, Double.class, CommonConverters.bigDecimalDoubleConverter());
     }
 }
