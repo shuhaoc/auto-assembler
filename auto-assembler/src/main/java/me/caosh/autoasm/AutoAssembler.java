@@ -220,6 +220,14 @@ public class AutoAssembler {
                     if (propertyFindResult != null) {
                         PropertyDescriptor propertyDescriptor = propertyFindResult.getPropertyDescriptor();
                         Class<?> propertyType = propertyDescriptor.getPropertyType();
+                        if (ConvertibleBuilder.class.isAssignableFrom(propertyType)) {
+                            Object sourceProperty = PropertyUtils.getProperty(propertyDescriptor,
+                                                                              propertyFindResult.getOwnObject());
+                            if (sourceProperty != null) {
+                                disassembleFromTarget(value, sourceProperty);
+                                continue;
+                            }
+                        }
                         ClassifiedConverter<?, ?> converter = getDisassembleConverter(propertyMeta.getFieldMapping().orNull(),
                                 value, propertyType);
                         Object convertedValue = convertValueOnDisassembling(value, targetPropertyType,
