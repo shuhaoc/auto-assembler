@@ -32,12 +32,48 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * 自动装载器，自动完成domain object与pojo之间或pojo之间的转换
- * {@link AutoAssembler}对象比较重，使用时建议使用单例，比如{@link AutoAssemblers#getDefault()}
+ * <h1>概览</h1>
+ * <h2>核心概念</h2>
+ * Auto assembler，自动装载器，用于自动完成domain object与pojo之间或pojo之间的转换。
+ * <p>
+ * {@link AutoAssembler}主要有两类转换方法，即<b>assemble</b>和<b>disassemble</b>。<b>assemble</b>是将源对象装载为目标对象，
+ * 源对象一般是domain object或POJO，目标对象一定是POJO；
+ * 相反地，<b>disassemble</b>是指目标对象反装载为源对象。
+ * <p>
+ * {@link AutoAssembler}对POJO的约束是：
+ * <ol>
+ * <li>具有公开的无参构造方法</li>
+ * <li>使用公开的setter/getter访问属性</li>
+ * <li>允许使用继承，但是所有fields的setter和getter和该field在同一个类中定义</li>
+ * </ol>
+ * 对于不支持空参构造的非POJO对象，主要是domain object，可以使用{@link ConvertibleBuilder}作为装载或反装载的中介类。
+ * {@link ConvertibleBuilder}实现类必须符合POJO相同的约束。
+ * <h2>主要API</h2>
+ * Auto assembler提供的API除了{@link AutoAssembler}类以外，还包括一系列注解、接口和工具类，注解包括：
+ * <ol>
+ * <li>{@link FieldMapping} 配置字段映射</li>
+ * <li>{@link Convertible} 配置嵌套转换</li>
+ * <li>{@link RuntimeType} & {@link MappedClass} 配置多态类型</li>
+ * <li>{@link SkippedField} 配置字段跳过转换</li>
+ * </ol>
+ * 接口包括：
+ * <ol>
+ * <li>{@link ConvertibleEnum} 定义可转换枚举，实现枚举与其他类型比如Integer互转</li>
+ * <li>{@link ConvertibleBuilder} 定义转换对象的Builder，用于解决无参构造问题和封装构造复杂性</li>
+ * <li>{@link ClassifiedConverter} 定义字段转换器，或者使用Guava的{@link Converter}</li>
+ * </ol>
+ * 工具类包括：
+ * <ol>
+ * <li>{@link AutoAssemblers} 提供已构造好的单例对象</li>
+ * <li>{@link AutoAssemblerBuilder} 用于自定义{@link AutoAssembler}</li>
+ * </ol>
+ * <p>
+ * {@link AutoAssembler}对象比较重，使用时建议使用单例，比如{@link AutoAssemblers#getDefault()}。
  *
  * @author caosh/shuhaoc@qq.com
  * @date 2018/1/10
  */
+@SuppressWarnings("unchecked")
 public class AutoAssembler {
     private static final String CLASS = "class";
 

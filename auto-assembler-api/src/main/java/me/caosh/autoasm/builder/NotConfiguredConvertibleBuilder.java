@@ -3,7 +3,7 @@ package me.caosh.autoasm.builder;
 import me.caosh.autoasm.ConvertibleBuilder;
 
 /**
- * 注解配置无效值，不可实例化
+ * {@link me.caosh.autoasm.MappedClass}注解的配置无效值，仅用于占位，不可实例化
  *
  * @author shuhaoc@qq.com
  * @date 2018/2/4

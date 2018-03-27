@@ -6,9 +6,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 配置一个接口或抽象类的子类，用于实现运行时动态实例化子类对象
+ * 配置目标对象中的接口或抽象类的子类，用于实现运行时动态实例化子类对象
  *
- * @author shuhaoc@qq.com
+ * @author caosh/shuhaoc@qq.com
  * @date 2018/1/13
  */
 @Retention(RetentionPolicy.RUNTIME)

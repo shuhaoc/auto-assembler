@@ -9,12 +9,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Auto assembler字段映射配置
- * 在POJO的fields上使用，POJO应保证fields的setter和getter和field在同一个类中定义
+ * Auto assembler目标对象的字段映射配置
  *
- * 配置项优先级顺序（从高到低）：
- * 注解POJO作为目标对象：value, mappedProperty
- * 注解POJO作为源对象：defaultValue, mappedProperty
+ * 目标对象必须为POJO，且保证所有fields的setter和getter和该field在同一个类中定义
+ *
+ * 配置项优先级顺序（从高到低）：defaultValue, mappedProperty
  *
  * @author caosh/shuhaoc@qq.com
  * @date 2018/1/10

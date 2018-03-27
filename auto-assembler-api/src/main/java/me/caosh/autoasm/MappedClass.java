@@ -8,10 +8,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 配置嵌套的POJO在Disassemble时动态创建的源对象嵌套类
- * 隐含{@link Convertible}语义
+ * 配置目标对象在disassemble时动态创建的源对象类或源对象的Builder类
  *
- * @author shuhaoc@qq.com
+ * @author caosh/shuhaoc@qq.com
  * @date 2018/1/13
  */
 @Retention(RetentionPolicy.RUNTIME)
