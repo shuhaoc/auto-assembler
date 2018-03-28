@@ -3,6 +3,8 @@ package me.caosh.autoasm;
 import com.google.common.base.MoreObjects;
 import org.testng.annotations.Test;
 
+import java.util.Objects;
+
 import static org.testng.Assert.*;
 
 /**
@@ -19,13 +21,14 @@ public class RuntimeTypeTest {
         externalProperties.setX(123);
         testConditionOrder.setExternalProperties(externalProperties);
 
-        TestConditionOrderDTO testConditionOrderDTO = autoAssembler.assemble(testConditionOrder, TestConditionOrderDTO.class);
+        TestConditionOrderDTO testConditionOrderDTO = autoAssembler.assemble(testConditionOrder,
+                                                                             TestConditionOrderDTO.class);
         assertEquals(((FirstExternalPropertiesDTO) testConditionOrderDTO.getExternalProperties()).getX(),
-                ((FirstExternalProperties) testConditionOrder.getExternalProperties()).getX());
+                     ((FirstExternalProperties) testConditionOrder.getExternalProperties()).getX());
 
         TestConditionOrder disassemble = autoAssembler.disassemble(testConditionOrderDTO, TestConditionOrder.class);
         assertEquals(((FirstExternalProperties) disassemble.getExternalProperties()).getX(),
-                ((FirstExternalPropertiesDTO) testConditionOrderDTO.getExternalProperties()).getX());
+                     ((FirstExternalPropertiesDTO) testConditionOrderDTO.getExternalProperties()).getX());
     }
 
     @Test
@@ -71,6 +74,26 @@ public class RuntimeTypeTest {
         assertEquals(disassemble, externalProperties);
     }
 
+    @Test
+    public void testDisassembleMultiPropertiesToOne() throws Exception {
+        TestConditionOrderDTO conditionOrderDTO = new TestConditionOrderDTO();
+        FourthExternalPropertiesDTO externalProperties = new FourthExternalPropertiesDTO();
+        externalProperties.setNotExternalString("hello");
+        conditionOrderDTO.setExternalProperties(externalProperties);
+        conditionOrderDTO.setExternalString("world");
+
+        TestConditionOrderBuilder sourceBuilder = new TestConditionOrderBuilder();
+        sourceBuilder.setExternalProperties(new FourthExternalPropertiesBuilder());
+        TestConditionOrder conditionOrder = autoAssembler.disassemble(conditionOrderDTO, sourceBuilder).build();
+        assertTrue(conditionOrder.getExternalProperties() instanceof FourthExternalProperties);
+        assertEquals(((FourthExternalProperties) conditionOrder.getExternalProperties()).getExternalString(), "world");
+
+        TestConditionOrderDTO assemble = autoAssembler.assemble(conditionOrder, TestConditionOrderDTO.class);
+        assertTrue(assemble.getExternalProperties() instanceof FourthExternalPropertiesDTO);
+        assertNull(((FourthExternalPropertiesDTO) assemble.getExternalProperties()).getNotExternalString());
+        assertEquals(assemble.getExternalString(), conditionOrderDTO.getExternalString());
+    }
+
     public static class TestConditionOrder {
         private ExternalProperties externalProperties;
 
@@ -100,8 +123,27 @@ public class RuntimeTypeTest {
         @Override
         public String toString() {
             return MoreObjects.toStringHelper(TestConditionOrder.class)
-                    .add("externalProperties", externalProperties)
-                    .toString();
+                              .add("externalProperties", externalProperties)
+                              .toString();
+        }
+    }
+
+    public static class TestConditionOrderBuilder implements ConvertibleBuilder<TestConditionOrder> {
+        private ConvertibleBuilder<? extends ExternalProperties> externalProperties;
+
+        public ConvertibleBuilder<? extends ExternalProperties> getExternalProperties() {
+            return externalProperties;
+        }
+
+        public void setExternalProperties(ConvertibleBuilder<? extends ExternalProperties> externalProperties) {
+            this.externalProperties = externalProperties;
+        }
+
+        @Override
+        public TestConditionOrder build() {
+            TestConditionOrder testConditionOrder = new TestConditionOrder();
+            testConditionOrder.setExternalProperties(externalProperties.build());
+            return testConditionOrder;
         }
     }
 
@@ -137,8 +179,8 @@ public class RuntimeTypeTest {
         @Override
         public String toString() {
             return MoreObjects.toStringHelper(FirstExternalProperties.class)
-                    .add("x", x)
-                    .toString();
+                              .add("x", x)
+                              .toString();
         }
     }
 
@@ -156,13 +198,61 @@ public class RuntimeTypeTest {
         @Override
         public String toString() {
             return MoreObjects.toStringHelper(SecondExternalProperties.class).omitNullValues()
-                    .add("y", y)
-                    .toString();
+                              .add("y", y)
+                              .toString();
+        }
+    }
+
+    public static class FourthExternalProperties implements ExternalProperties {
+        private String externalString;
+
+        public FourthExternalProperties(String externalString) {
+            this.externalString = externalString;
+        }
+
+        public String getExternalString() {
+            return externalString;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            FourthExternalProperties that = (FourthExternalProperties) o;
+            return Objects.equals(externalString, that.externalString);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(externalString);
+        }
+
+        @Override
+        public String toString() {
+            return MoreObjects.toStringHelper(FourthExternalProperties.class).omitNullValues()
+                              .add("notExternalString", externalString)
+                              .toString();
+        }
+    }
+
+    public static class FourthExternalPropertiesBuilder implements ConvertibleBuilder<FourthExternalProperties> {
+        private String externalString;
+
+        public FourthExternalPropertiesBuilder setExternalString(String externalString) {
+            this.externalString = externalString;
+            return this;
+        }
+
+        @Override
+        public FourthExternalProperties build() {
+            return new FourthExternalProperties(externalString);
         }
     }
 
     public static class TestConditionOrderDTO {
         private ExternalPropertiesDTO externalProperties;
+        @FieldMapping(mappedProperty = "externalProperties.externalString")
+        private String externalString;
 
         public ExternalPropertiesDTO getExternalProperties() {
             return externalProperties;
@@ -172,31 +262,40 @@ public class RuntimeTypeTest {
             this.externalProperties = externalProperties;
         }
 
+        public String getExternalString() {
+            return externalString;
+        }
+
+        public void setExternalString(String externalString) {
+            this.externalString = externalString;
+        }
+
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-
             TestConditionOrderDTO that = (TestConditionOrderDTO) o;
-
-            return externalProperties != null ? externalProperties.equals(that.externalProperties) : that.externalProperties == null;
+            return Objects.equals(externalProperties, that.externalProperties) &&
+                    Objects.equals(externalString, that.externalString);
         }
 
         @Override
         public int hashCode() {
-            return externalProperties != null ? externalProperties.hashCode() : 0;
+            return Objects.hash(externalProperties, externalString);
         }
 
         @Override
         public String toString() {
-            return MoreObjects.toStringHelper(TestConditionOrderDTO.class)
-                    .add("externalProperties", externalProperties)
-                    .toString();
+            return MoreObjects.toStringHelper(TestConditionOrderDTO.class).omitNullValues()
+                              .add("externalProperties", externalProperties)
+                              .add("externalString", externalString)
+                              .toString();
         }
     }
 
     @RuntimeType({
-            FirstExternalPropertiesDTO.class
+            FirstExternalPropertiesDTO.class,
+            FourthExternalPropertiesDTO.class
     })
     public interface ExternalPropertiesDTO {
     }
@@ -231,8 +330,8 @@ public class RuntimeTypeTest {
         @Override
         public String toString() {
             return MoreObjects.toStringHelper(FirstExternalPropertiesDTO.class)
-                    .add("x", x)
-                    .toString();
+                              .add("x", x)
+                              .toString();
         }
     }
 
@@ -265,8 +364,21 @@ public class RuntimeTypeTest {
         @Override
         public String toString() {
             return MoreObjects.toStringHelper(ThirdExternalPropertiesDTO.class).omitNullValues()
-                    .add("z", z)
-                    .toString();
+                              .add("z", z)
+                              .toString();
+        }
+    }
+
+    @MappedClass(value = FourthExternalProperties.class, builderClass = FourthExternalPropertiesBuilder.class)
+    public static class FourthExternalPropertiesDTO implements ExternalPropertiesDTO {
+        private String notExternalString;
+
+        public String getNotExternalString() {
+            return notExternalString;
+        }
+
+        public void setNotExternalString(String notExternalString) {
+            this.notExternalString = notExternalString;
         }
     }
 }
