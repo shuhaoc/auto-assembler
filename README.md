@@ -31,3 +31,19 @@ Auto assembler提供的API除了AutoAssembler类以外，还包括一系列注�
 * AutoAssemblerBuilder 用于自定义AutoAssembler
 
 AutoAssembler对象比较重，使用时建议使用单例，比如AutoAssemblers.getDefault()。
+
+
+# 功能说明
+
+## 基本转换功能
+
+### 逐字段转换
+
+### 转换器
+
+## 字段映射
+
+## 多态转换
+
+## 转换Builder
+
