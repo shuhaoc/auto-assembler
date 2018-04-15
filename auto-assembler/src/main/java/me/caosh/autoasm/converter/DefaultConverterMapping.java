@@ -39,6 +39,7 @@ public class DefaultConverterMapping extends ConverterMapping {
         register(String.class, Enum.class, CommonClassifiedConverters.stringEnumConverter());
         register(ConvertibleEnum.class, Object.class,
                 (ClassifiedConverter) CommonClassifiedConverters.convertibleEnumConverter());
+        register(Boolean.TYPE, Boolean.class, CommonConverters.<Boolean>assignDirectlyConverter());
         register(Integer.TYPE, Integer.class, CommonConverters.<Integer>assignDirectlyConverter());
         register(Long.TYPE, Long.class, CommonConverters.<Long>assignDirectlyConverter());
         register(Float.TYPE, Float.class, CommonConverters.<Float>assignDirectlyConverter());
