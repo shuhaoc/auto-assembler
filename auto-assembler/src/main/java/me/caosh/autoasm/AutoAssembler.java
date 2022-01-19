@@ -392,7 +392,7 @@ public class AutoAssembler {
             } else {
                 converterForElement = getConverterFor(originalClass, expectedClass);
             }
-            return Lists.newArrayList(Lists.transform((List) originalValue, converterForElement));
+            return Lists.newArrayList(Lists.transform((List) originalValue, (Converter) converterForElement));
         }
         // 暂不支持的抛出异常
         throw new IllegalArgumentException("Non-collection generic type fields not supported: " + expectedFieldGenericType);
