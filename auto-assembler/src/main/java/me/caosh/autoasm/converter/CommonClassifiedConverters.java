@@ -10,6 +10,20 @@ import me.caosh.autoasm.util.ConvertibleEnumUtils;
  * @date 2018/1/14
  */
 public class CommonClassifiedConverters {
+    public static ClassifiedConverter<Integer, Enum> integerEnumConverter() {
+        return new AbstractClassifiedConverter<Integer, Enum>() {
+            @Override
+            public Enum doForward(Integer value, Class<Enum> returnClass) {
+                return returnClass.getEnumConstants()[value];
+            }
+
+            @Override
+            public Integer doBackward(Enum value, Class<Integer> returnClass) {
+                return value.ordinal();
+            }
+        };
+    }
+
     public static ClassifiedConverter<String, Enum> stringEnumConverter() {
         return new AbstractClassifiedConverter<String, Enum>() {
             @Override

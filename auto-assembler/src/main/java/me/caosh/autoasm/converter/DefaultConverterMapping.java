@@ -36,6 +36,7 @@ public class DefaultConverterMapping extends ConverterMapping {
         register(Date.class, java.sql.Date.class, CommonConverters.date2DbDateConverter());
         register(Date.class, java.sql.Time.class, CommonConverters.date2DbTimeConverter());
         register(Date.class, java.sql.Timestamp.class, CommonConverters.dateTimestampConverter());
+        register(Integer.class, Enum.class, CommonClassifiedConverters.integerEnumConverter());
         register(String.class, Enum.class, CommonClassifiedConverters.stringEnumConverter());
         register(ConvertibleEnum.class, Object.class,
                 (ClassifiedConverter) CommonClassifiedConverters.convertibleEnumConverter());
