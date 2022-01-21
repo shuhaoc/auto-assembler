@@ -1,33 +1,17 @@
 package me.caosh.autoasm;
 
 import com.google.common.base.Converter;
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import me.caosh.autoasm.builder.NotConfiguredConvertibleBuilder;
-import me.caosh.autoasm.converter.ClassifiedConverter;
-import me.caosh.autoasm.converter.ConverterMapping;
-import me.caosh.autoasm.converter.DefaultConverterMapping;
-import me.caosh.autoasm.converter.NotConfiguredClassifiedConverter;
-import me.caosh.autoasm.handler.FieldMappingAssembleReadHandler;
-import me.caosh.autoasm.handler.FieldMappingDisassemblePropertyFinder;
-import me.caosh.autoasm.handler.FieldMappingDisassembleReadHandler;
-import me.caosh.autoasm.handler.PropertyFinder;
-import me.caosh.autoasm.handler.ReadHandler;
-import me.caosh.autoasm.handler.ReadHandlerChain;
-import me.caosh.autoasm.handler.ReflectionReadHandler;
-import me.caosh.autoasm.util.AssemblerWithBuilder;
-import me.caosh.autoasm.util.PropertyFindResult;
-import me.caosh.autoasm.util.PropertyUtils;
-import me.caosh.autoasm.util.ReflectionUtils;
+import me.caosh.autoasm.converter.*;
+import me.caosh.autoasm.handler.*;
+import me.caosh.autoasm.util.*;
 import org.springframework.beans.BeanUtils;
 
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 import java.util.Collections;
 import java.util.List;
 
@@ -77,9 +61,9 @@ import java.util.List;
 public class AutoAssembler {
     private static final String CLASS = "class";
 
-    private ReadHandler assembleReadHandler;
-    private ReadHandler disassembleReadHandler;
-    private PropertyFinder disassemblePropertyFinder;
+    private ReadHandler      assembleReadHandler;
+    private ReadHandler      disassembleReadHandler;
+    private PropertyFinder   disassemblePropertyFinder;
     private ConverterMapping converterMapping;
 
     AutoAssembler() {
@@ -258,7 +242,7 @@ public class AutoAssembler {
                         Class<?> propertyType = propertyDescriptor.getPropertyType();
                         if (ConvertibleBuilder.class.isAssignableFrom(propertyType)) {
                             Object sourceProperty = PropertyUtils.getProperty(propertyDescriptor,
-                                                                              propertyFindResult.getOwnObject());
+                                    propertyFindResult.getOwnObject());
                             if (sourceProperty != null) {
                                 disassembleFromTarget(value, sourceProperty);
                                 continue;
@@ -459,12 +443,16 @@ public class AutoAssembler {
     }
 
     private Object stripOptionalValue(Object originalValue) {
-        if (!(originalValue instanceof Optional)) {
-            return originalValue;
+        if (originalValue instanceof com.google.common.base.Optional) {
+            com.google.common.base.Optional<?> optional = (com.google.common.base.Optional<?>) originalValue;
+            return optional.orNull();
+        }
+        if (originalValue instanceof java.util.Optional) {
+            java.util.Optional<?> optional = (java.util.Optional<?>) originalValue;
+            return optional.orElse(null);
         }
 
-        Optional optional = (Optional) originalValue;
-        return optional.orNull();
+        return originalValue;
     }
 
     public <S, T> Converter<S, T> getConverterFor(final Class<S> sourceClass, final Class<T> targetClass) {
