@@ -8,6 +8,15 @@ import me.caosh.autoasm.builder.NotConfiguredConvertibleBuilder;
 import me.caosh.autoasm.converter.*;
 import me.caosh.autoasm.handler.*;
 import me.caosh.autoasm.util.*;
+import me.caosh.autoasm.converter.ClassifiedConverter;
+import me.caosh.autoasm.converter.ConverterMapping;
+import me.caosh.autoasm.converter.DefaultConverterMapping;
+import me.caosh.autoasm.converter.NotConfiguredClassifiedConverter;
+import me.caosh.autoasm.handler.*;
+import me.caosh.autoasm.util.AssemblerWithBuilder;
+import me.caosh.autoasm.util.PropertyFindResult;
+import me.caosh.autoasm.util.PropertyUtils;
+import me.caosh.autoasm.util.ReflectionUtils;
 import org.springframework.beans.BeanUtils;
 
 import java.beans.PropertyDescriptor;
@@ -20,8 +29,8 @@ import java.util.List;
  * <h2>核心概念</h2>
  * Auto assembler，自动装载器，用于自动完成domain object与pojo之间或pojo之间的转换。
  * <p>
- * {@link AutoAssembler}主要有两类转换方法，即<b>assemble</b>和<b>disassemble</b>。<b>assemble</b>是将源对象装载为目标对象，
- * 源对象一般是domain object或POJO，目标对象一定是POJO；
+ * {@link AutoAssembler}主要有两类转换方法，即<b>assemble</b>和<b>disassemble</b>。
+ * <b>assemble</b>是将源对象装载为目标对象，源对象一般是domain object或POJO，目标对象一定是POJO；
  * 相反地，<b>disassemble</b>是指目标对象反装载为源对象。
  * <p>
  * {@link AutoAssembler}对POJO的约束是：
@@ -31,7 +40,7 @@ import java.util.List;
  * <li>允许使用继承，但是所有fields的setter和getter和该field在同一个类中定义</li>
  * </ol>
  * 对于不支持空参构造的非POJO对象，主要是domain object，可以使用{@link ConvertibleBuilder}作为装载或反装载的中介类。
- * {@link ConvertibleBuilder}实现类必须符合POJO相同的约束。
+ * {@link ConvertibleBuilder}实现类必须符合POJO相同的setter/getter的约束。
  * <h2>主要API</h2>
  * Auto assembler提供的API除了{@link AutoAssembler}类以外，还包括一系列注解、接口和工具类，注解包括：
  * <ol>
