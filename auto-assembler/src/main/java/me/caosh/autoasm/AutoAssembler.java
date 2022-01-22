@@ -123,7 +123,7 @@ public class AutoAssembler {
         return Lists.newArrayList(Iterables.transform(sourceList, converter));
     }
 
-    private void assembleToTarget(Object sourceObject, Object targetObject) {
+    public void assembleToTarget(Object sourceObject, Object targetObject) {
         Class<?> targetClass = targetObject.getClass();
         PropertyDescriptor[] targetPropertyDescriptors = BeanUtils.getPropertyDescriptors(targetClass);
         for (PropertyDescriptor targetPropertyDescriptor : targetPropertyDescriptors) {
@@ -213,7 +213,7 @@ public class AutoAssembler {
         return sourceObject;
     }
 
-    private void disassembleFromTarget(Object targetObject, Object sourceObject) {
+    public void disassembleFromTarget(Object targetObject, Object sourceObject) {
         Class<?> targetClass = targetObject.getClass();
         PropertyDescriptor[] targetPropertyDescriptors = BeanUtils.getPropertyDescriptors(targetClass);
         for (PropertyDescriptor targetPropertyDescriptor : targetPropertyDescriptors) {
