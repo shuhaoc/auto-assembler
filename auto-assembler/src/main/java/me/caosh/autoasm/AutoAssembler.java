@@ -8,15 +8,6 @@ import me.caosh.autoasm.builder.NotConfiguredConvertibleBuilder;
 import me.caosh.autoasm.converter.*;
 import me.caosh.autoasm.handler.*;
 import me.caosh.autoasm.util.*;
-import me.caosh.autoasm.converter.ClassifiedConverter;
-import me.caosh.autoasm.converter.ConverterMapping;
-import me.caosh.autoasm.converter.DefaultConverterMapping;
-import me.caosh.autoasm.converter.NotConfiguredClassifiedConverter;
-import me.caosh.autoasm.handler.*;
-import me.caosh.autoasm.util.AssemblerWithBuilder;
-import me.caosh.autoasm.util.PropertyFindResult;
-import me.caosh.autoasm.util.PropertyUtils;
-import me.caosh.autoasm.util.ReflectionUtils;
 import org.springframework.beans.BeanUtils;
 
 import java.beans.PropertyDescriptor;
