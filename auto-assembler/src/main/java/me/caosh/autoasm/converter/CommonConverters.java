@@ -74,6 +74,20 @@ public class CommonConverters {
         };
     }
 
+    public static Converter<String, java.sql.Date> stringDbDateConverter() {
+        return new Converter<String, java.sql.Date>() {
+            @Override
+            protected java.sql.Date doForward(String s) {
+                return java.sql.Date.valueOf(s);
+            }
+
+            @Override
+            protected String doBackward(java.sql.Date date) {
+                return date.toString();
+            }
+        };
+    }
+
     public static Converter<String, LocalDateTime> stringLocalDateTimeConverter() {
         return new Converter<String, LocalDateTime>() {
             @Override

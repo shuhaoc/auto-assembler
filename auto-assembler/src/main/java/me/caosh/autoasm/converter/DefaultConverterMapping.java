@@ -27,6 +27,7 @@ public class DefaultConverterMapping extends ConverterMapping {
         register(String.class, Boolean.class, CommonConverters.stringBooleanConverter());
         register(String.class, BigDecimal.class, CommonConverters.stringBigDecimalConverter());
         register(String.class, Date.class, CommonConverters.stringDateConverter());
+        register(String.class, java.sql.Date.class, CommonConverters.stringDbDateConverter());
         register(String.class, LocalDateTime.class, CommonConverters.stringLocalDateTimeConverter());
         register(String.class, LocalDate.class, CommonConverters.stringLocalDateConverter());
         register(String.class, LocalTime.class, CommonConverters.stringLocalTimeConverter());
