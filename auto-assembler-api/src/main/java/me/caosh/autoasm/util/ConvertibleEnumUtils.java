@@ -18,6 +18,7 @@ public class ConvertibleEnumUtils {
      * @param <EnumType>  枚举类型
      * @return 枚举，非空
      */
+    @SuppressWarnings("unchecked")
     public static <ValueType, EnumType extends ConvertibleEnum<ValueType>>
     EnumType valueOf(ValueType value, Class<EnumType> enumClass) {
         ConvertibleEnum[] convertibleEnums = enumClass.getEnumConstants();
