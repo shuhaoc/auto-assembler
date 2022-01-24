@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
 	<groupId>me.caosh</groupId>
     <artifactId>auto-assembler-parent</artifactId>
-    <version>1.0.4-SNAPSHOT</version>
+    <version>1.0.4</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -91,7 +91,7 @@
     </build>
     <scm>
         <developerConnection>scm:git:git@github.com:shuhaoc/auto-assembler.git</developerConnection>
-      <tag>HEAD</tag>
+      <tag>v1.0.4</tag>
   </scm>
     <contributors>
         <contributor>
